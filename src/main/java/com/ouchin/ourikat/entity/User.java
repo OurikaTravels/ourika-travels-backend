@@ -1,6 +1,5 @@
 package com.ouchin.ourikat.entity;
 
-
 import com.ouchin.ourikat.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -15,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -51,6 +49,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean verified = false;
 
+    public User(String firstName, String lastName, String email, String password, Role role) {
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String roleName = this.role.name();
@@ -84,6 +85,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-
 }
