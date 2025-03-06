@@ -29,10 +29,18 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers("/auth/**").permitAll()
+                        //category
                         .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/categories").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
+
+                        //trek
+                        .requestMatchers(HttpMethod.GET, "/treks").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/treks").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/treks/{id}").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/treks/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/treks/{id}").hasRole("ADMIN")
 
 
                         .requestMatchers("/tourist/**").hasRole("TOURIST")
