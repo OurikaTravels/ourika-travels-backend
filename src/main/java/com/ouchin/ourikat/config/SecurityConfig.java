@@ -27,9 +27,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/tourist/**").hasRole("TOURIST") // Use TOURIST instead of ROLE_TOURIST
-                        .requestMatchers("/guide/**").hasRole("GUIDE") // Use GUIDE instead of ROLE_GUIDE
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // Use ADMIN instead of ROLE_ADMIN
+                        .requestMatchers("/tourist/**").hasRole("TOURIST")
+                        .requestMatchers("/guide/**").hasRole("GUIDE")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

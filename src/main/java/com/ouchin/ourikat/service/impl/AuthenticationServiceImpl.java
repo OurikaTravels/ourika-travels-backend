@@ -7,19 +7,13 @@ import com.ouchin.ourikat.dto.request.GuideRegistrationRequestDto;
 import com.ouchin.ourikat.dto.response.LoginResponseDto;
 import com.ouchin.ourikat.dto.response.TouristResponseDto;
 import com.ouchin.ourikat.dto.response.GuideResponseDto;
-import com.ouchin.ourikat.entity.Guide;
-import com.ouchin.ourikat.entity.Tourist;
-import com.ouchin.ourikat.entity.User;
-import com.ouchin.ourikat.entity.VerificationToken;
+import com.ouchin.ourikat.entity.*;
 import com.ouchin.ourikat.exception.AuthenticationFailedException;
 import com.ouchin.ourikat.exception.EmailAlreadyExistsException;
 import com.ouchin.ourikat.exception.ResourceNotFoundException;
 import com.ouchin.ourikat.mapper.GuideMapper;
 import com.ouchin.ourikat.mapper.TouristMapper;
-import com.ouchin.ourikat.repository.GuideRepository;
-import com.ouchin.ourikat.repository.TouristRepository;
-import com.ouchin.ourikat.repository.UserRepository;
-import com.ouchin.ourikat.repository.VerificationTokenRepository;
+import com.ouchin.ourikat.repository.*;
 import com.ouchin.ourikat.service.AuthenticationService;
 import com.ouchin.ourikat.service.EmailService;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +46,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final GuideMapper guideMapper;
     private final VerificationTokenRepository verificationTokenRepository;
     private final EmailService emailService;
+    private final PasswordResetTokenRepository  passwordResetTokenRepository;
+
+
     @Override
     @Transactional
     public LoginResponseDto login(LoginRequestDto request) {
@@ -65,15 +62,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            User user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-            if (!user.isVerified()) {
-                throw new AuthenticationFailedException("Email not verified");
-            }
-
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String jwt = jwtTokenProvider.generateToken(userDetails);
+
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
             return new LoginResponseDto(jwt, user.getRole(), user.getEmail());
         } catch (BadCredentialsException e) {
@@ -85,62 +78,49 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public TouristResponseDto registerTourist(TouristRegistrationRequestDto request) {
-        // Check if email is already registered
+
         if (isEmailAlreadyRegistered(request.getEmail())) {
             log.warn("Registration attempt with existing email: {}", request.getEmail());
             throw new EmailAlreadyExistsException("Email already in use");
         }
 
-        // Map request to Tourist entity
         Tourist tourist = touristMapper.toEntity(request);
 
-        // Encode password
         tourist.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // Save tourist
         Tourist savedTourist = touristRepository.save(tourist);
 
         log.info("Tourist registered successfully: {}", savedTourist.getEmail());
 
-        // Generate and save verification token
         String token = UUID.randomUUID().toString();
         generateVerificationToken(savedTourist, token);
 
-        // Send verification email
         emailService.sendVerificationEmail(savedTourist.getEmail(), token);
 
-        // Map and return response
         return touristMapper.toResponseDto(savedTourist);
     }
 
     @Override
     @Transactional
     public GuideResponseDto registerGuide(GuideRegistrationRequestDto request) {
-        // Check if email is already registered
         if (isEmailAlreadyRegistered(request.getEmail())) {
             log.warn("Registration attempt with existing email: {}", request.getEmail());
             throw new EmailAlreadyExistsException("Email already in use");
         }
 
-        // Map request to Guide entity
         Guide guide = guideMapper.toEntity(request);
 
-        // Encode password
         guide.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // Save guide
         Guide savedGuide = guideRepository.save(guide);
 
         log.info("Guide registered successfully: {}", savedGuide.getEmail());
 
-        // Generate and save verification token
         String token = UUID.randomUUID().toString();
         generateVerificationToken(savedGuide, token);
 
-        // Send verification email
         emailService.sendVerificationEmail(savedGuide.getEmail(), token);
 
-        // Map and return response
         return guideMapper.toResponseDto(savedGuide);
     }
 
@@ -173,5 +153,41 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setVerified(true);
         userRepository.save(user);
         verificationTokenRepository.delete(verificationToken);
+    }
+
+
+    @Override
+    @Transactional
+    public void generatePasswordResetToken(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(UUID.randomUUID().toString());
+        resetToken.setUser(user);
+        passwordResetTokenRepository.save(resetToken);
+
+        emailService.sendPasswordResetEmail(user.getEmail(), resetToken.getToken());
+    }
+
+
+    @Override
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
+
+        if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token has expired");
+        }
+
+        User user = resetToken.getUser();
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+
+        passwordResetTokenRepository.delete(resetToken);
     }
 }

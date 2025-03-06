@@ -38,4 +38,6 @@ public interface AuthenticationService {
     boolean isEmailAlreadyRegistered(String email);
     void generateVerificationToken(User user, String token);
     void verifyEmail(String token);
+    void generatePasswordResetToken(String email);
+    void resetPassword(String token, String newPassword);
 }
