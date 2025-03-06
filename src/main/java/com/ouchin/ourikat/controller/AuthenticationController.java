@@ -73,4 +73,15 @@ public class AuthenticationController {
                     .body(new ApiResponse<>(false, errorMessage, null));
         }
     }
+
+    @GetMapping("/verify")
+    public ResponseEntity<ApiResponse<Void>> verifyEmail(@RequestParam String token) {
+        try {
+            authenticationService.verifyEmail(token);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Email verified successfully", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
 }

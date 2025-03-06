@@ -48,12 +48,14 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false)
+    private boolean verified = false;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Strip the ROLE_ prefix if it exists
         String roleName = this.role.name();
         if (roleName.startsWith("ROLE_")) {
-            roleName = roleName.substring(5); // Remove the "ROLE_" prefix
+            roleName = roleName.substring(5);
         }
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleName));
     }
@@ -82,4 +84,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

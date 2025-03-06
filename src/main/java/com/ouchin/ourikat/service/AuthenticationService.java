@@ -6,6 +6,7 @@ import com.ouchin.ourikat.dto.request.GuideRegistrationRequestDto;
 import com.ouchin.ourikat.dto.response.LoginResponseDto;
 import com.ouchin.ourikat.dto.response.TouristResponseDto;
 import com.ouchin.ourikat.dto.response.GuideResponseDto;
+import com.ouchin.ourikat.entity.User;
 
 public interface AuthenticationService {
     /**
@@ -35,4 +36,6 @@ public interface AuthenticationService {
      * @return true if email exists, false otherwise
      */
     boolean isEmailAlreadyRegistered(String email);
+    void generateVerificationToken(User user, String token);
+    void verifyEmail(String token);
 }

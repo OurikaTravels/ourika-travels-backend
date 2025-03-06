@@ -10,6 +10,7 @@ import com.ouchin.ourikat.dto.response.GuideResponseDto;
 import com.ouchin.ourikat.entity.Guide;
 import com.ouchin.ourikat.entity.Tourist;
 import com.ouchin.ourikat.entity.User;
+import com.ouchin.ourikat.entity.VerificationToken;
 import com.ouchin.ourikat.exception.AuthenticationFailedException;
 import com.ouchin.ourikat.exception.EmailAlreadyExistsException;
 import com.ouchin.ourikat.exception.ResourceNotFoundException;
@@ -18,7 +19,9 @@ import com.ouchin.ourikat.mapper.TouristMapper;
 import com.ouchin.ourikat.repository.GuideRepository;
 import com.ouchin.ourikat.repository.TouristRepository;
 import com.ouchin.ourikat.repository.UserRepository;
+import com.ouchin.ourikat.repository.VerificationTokenRepository;
 import com.ouchin.ourikat.service.AuthenticationService;
+import com.ouchin.ourikat.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +33,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -44,7 +50,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final TouristMapper touristMapper;
     private final GuideMapper guideMapper;
-
+    private final VerificationTokenRepository verificationTokenRepository;
+    private final EmailService emailService;
     @Override
     @Transactional
     public LoginResponseDto login(LoginRequestDto request) {
@@ -58,15 +65,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Generate JWT token
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String jwt = jwtTokenProvider.generateToken(userDetails);
-
-            // Fetch user details
             User user = userRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-            // Return the role without the ROLE_ prefix
+            if (!user.isVerified()) {
+                throw new AuthenticationFailedException("Email not verified");
+            }
+
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String jwt = jwtTokenProvider.generateToken(userDetails);
+
             return new LoginResponseDto(jwt, user.getRole(), user.getEmail());
         } catch (BadCredentialsException e) {
             log.error("Invalid login credentials for email: {}", request.getEmail());
@@ -94,6 +102,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         log.info("Tourist registered successfully: {}", savedTourist.getEmail());
 
+        // Generate and save verification token
+        String token = UUID.randomUUID().toString();
+        generateVerificationToken(savedTourist, token);
+
+        // Send verification email
+        emailService.sendVerificationEmail(savedTourist.getEmail(), token);
+
         // Map and return response
         return touristMapper.toResponseDto(savedTourist);
     }
@@ -118,6 +133,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         log.info("Guide registered successfully: {}", savedGuide.getEmail());
 
+        // Generate and save verification token
+        String token = UUID.randomUUID().toString();
+        generateVerificationToken(savedGuide, token);
+
+        // Send verification email
+        emailService.sendVerificationEmail(savedGuide.getEmail(), token);
+
         // Map and return response
         return guideMapper.toResponseDto(savedGuide);
     }
@@ -125,5 +147,31 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public boolean isEmailAlreadyRegistered(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+
+    @Override
+    @Transactional
+    public void generateVerificationToken(User user, String token) {
+        VerificationToken verificationToken = new VerificationToken();
+        verificationToken.setToken(token);
+        verificationToken.setUser(user);
+        verificationTokenRepository.save(verificationToken);
+    }
+
+    @Override
+    @Transactional
+    public void verifyEmail(String token) {
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
+
+        if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token has expired");
+        }
+
+        User user = verificationToken.getUser();
+        user.setVerified(true);
+        userRepository.save(user);
+        verificationTokenRepository.delete(verificationToken);
     }
 }
