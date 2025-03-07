@@ -21,5 +21,4 @@ public class Category {
     @NotBlank(message = "Description is required")
     private String description;
 
-
 }

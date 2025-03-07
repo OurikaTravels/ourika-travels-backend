@@ -19,7 +19,7 @@ public class TrekResponse {
     private String endLocation;
     private String fullDescription;
     private Double price;
-
+    private Long categoryId;
     private Set<HighlightResponse> highlights;
 
 }

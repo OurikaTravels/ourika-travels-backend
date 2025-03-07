@@ -3,11 +3,13 @@ package com.ouchin.ourikat.service.impl;
 
 import com.ouchin.ourikat.dto.request.TrekRequest;
 import com.ouchin.ourikat.dto.response.TrekResponse;
+import com.ouchin.ourikat.entity.Category;
 import com.ouchin.ourikat.entity.Highlight;
 import com.ouchin.ourikat.entity.Trek;
 import com.ouchin.ourikat.exception.DuplicateTitleException;
 import com.ouchin.ourikat.exception.ResourceNotFoundException;
 import com.ouchin.ourikat.mapper.TrekMapper;
+import com.ouchin.ourikat.repository.CategoryRepository;
 import com.ouchin.ourikat.repository.HighlightRepository;
 import com.ouchin.ourikat.repository.TrekRepository;
 import com.ouchin.ourikat.service.TrekService;
@@ -23,21 +25,26 @@ public class TrekServiceImpl implements TrekService {
     private final TrekRepository trekRepository;
     private final TrekMapper trekMapper;
     private final HighlightRepository highlightRepository;
+    private final CategoryRepository categoryRepository;
 
-    public TrekServiceImpl(TrekRepository trekRepository, TrekMapper trekMapper, HighlightRepository highlightRepository) {
+    public TrekServiceImpl(TrekRepository trekRepository, TrekMapper trekMapper, HighlightRepository highlightRepository, CategoryRepository categoryRepository) {
         this.trekRepository = trekRepository;
         this.trekMapper = trekMapper;
         this.highlightRepository = highlightRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
     public TrekResponse createTrek(TrekRequest trekRequest) {
-
-        if (trekRepository.findByTitle(trekRequest.getTitle()).isPresent()) {
-            throw new DuplicateTitleException("A trek with title '" + trekRequest.getTitle() + "' already exists.");
+        if (trekRequest.getCategoryId() == null) {
+            throw new IllegalArgumentException("Category ID is required.");
         }
 
+        Category category = categoryRepository.findById(trekRequest.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + trekRequest.getCategoryId()));
+
         Trek trek = trekMapper.toEntity(trekRequest);
+        trek.setCategory(category);
 
         trek = trekRepository.save(trek);
 
@@ -60,13 +67,20 @@ public class TrekServiceImpl implements TrekService {
 
     @Override
     public TrekResponse updateTrek(Long id, TrekRequest trekRequest) {
+
         Trek trek = trekRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Trek not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Trek not found with id: " + id));
 
 
-        if (trekRepository.existsByTitleAndIdNot(trekRequest.getTitle(), id)) {
-            throw new DuplicateTitleException("A trek with title '" + trekRequest.getTitle() + "' already exists.");
+        if (trekRequest.getCategoryId() == null) {
+            throw new IllegalArgumentException("Category ID is required.");
         }
+
+
+        Category category = categoryRepository.findById(trekRequest.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + trekRequest.getCategoryId()));
+
+
         trek.setTitle(trekRequest.getTitle());
         trek.setDescription(trekRequest.getDescription());
         trek.setDuration(trekRequest.getDuration());
@@ -74,7 +88,12 @@ public class TrekServiceImpl implements TrekService {
         trek.setEndLocation(trekRequest.getEndLocation());
         trek.setFullDescription(trekRequest.getFullDescription());
         trek.setPrice(trekRequest.getPrice());
+        trek.setCategory(category);
+
+
         trek = trekRepository.save(trek);
+
+
         return trekMapper.toResponse(trek);
     }
 

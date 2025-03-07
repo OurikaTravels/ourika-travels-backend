@@ -31,7 +31,6 @@ public class Trek {
     private String description;
 
     @NotNull(message = "Duration is required")
-    @Positive(message = "Duration must be a positive number")
     private Duration duration;
 
     @NotBlank(message = "Start location is required")
@@ -48,6 +47,9 @@ public class Trek {
     @Positive(message = "Price must be greater than zero")
     private Double price;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
