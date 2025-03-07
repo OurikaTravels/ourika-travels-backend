@@ -21,5 +21,5 @@ public class TrekResponse {
     private Double price;
     private Long categoryId;
     private Set<HighlightResponse> highlights;
-
+    private Set<InclusionItemResponse> inclusionItems;
 }
