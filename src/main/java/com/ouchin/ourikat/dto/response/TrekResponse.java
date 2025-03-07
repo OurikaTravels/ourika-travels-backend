@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Duration;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -18,4 +19,7 @@ public class TrekResponse {
     private String endLocation;
     private String fullDescription;
     private Double price;
+
+    private Set<HighlightResponse> highlights;
+
 }

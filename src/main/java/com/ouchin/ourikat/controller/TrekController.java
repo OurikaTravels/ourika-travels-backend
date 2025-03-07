@@ -51,4 +51,8 @@ public class TrekController {
         trekService.deleteTrek(id);
         return ResponseEntity.noContent().build();
     }
+
+
+
+
 }
