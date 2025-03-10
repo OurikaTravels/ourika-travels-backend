@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.Duration;
+import java.util.Set;
 
 @Data
 public class TrekRequest {
@@ -17,5 +18,7 @@ public class TrekRequest {
 
     @NotNull(message = "Category ID is required")
     private Long categoryId;
+
+    private Set<Long> highlightIds;
 
 }

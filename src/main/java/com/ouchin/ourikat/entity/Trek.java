@@ -51,6 +51,10 @@ public class Trek {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_id")
+    private Service service;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "trek_highlights",
@@ -59,34 +63,13 @@ public class Trek {
     )
     private Set<Highlight> highlights = new HashSet<>();
 
-    @OneToMany(mappedBy = "trek", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TrekInclusion> trekInclusions = new HashSet<>();
 
-    // Helper methods for managing highlights
     public void addHighlight(Highlight highlight) {
         this.highlights.add(highlight);
     }
 
     public void removeHighlight(Highlight highlight) {
         this.highlights.remove(highlight);
-    }
-
-    // Helper methods for managing inclusions
-    public void addInclusionItem(InclusionItem inclusionItem, boolean isIncluded) {
-        TrekInclusion trekInclusion = new TrekInclusion();
-        trekInclusion.setTrek(this);
-        trekInclusion.setInclusionItem(inclusionItem);
-        trekInclusion.setIncluded(isIncluded);
-        this.trekInclusions.add(trekInclusion);
-        inclusionItem.getTrekInclusions().add(trekInclusion);
-    }
-
-    public void removeInclusionItem(InclusionItem inclusionItem) {
-        TrekInclusion trekInclusion = new TrekInclusion();
-        trekInclusion.setTrek(this);
-        trekInclusion.setInclusionItem(inclusionItem);
-        this.trekInclusions.remove(trekInclusion);
-        inclusionItem.getTrekInclusions().remove(trekInclusion);
     }
 
 }

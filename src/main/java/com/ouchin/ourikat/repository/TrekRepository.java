@@ -8,6 +8,4 @@ import java.util.Optional;
 
 @Repository
 public interface TrekRepository extends JpaRepository<Trek, Long> {
-    Optional<Trek> findByTitle(String title);
-    boolean existsByTitleAndIdNot(String title, Long id);
 }
