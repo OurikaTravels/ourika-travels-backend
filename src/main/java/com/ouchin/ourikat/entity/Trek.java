@@ -51,9 +51,6 @@ public class Trek {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_id")
-    private Service service;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
@@ -63,6 +60,20 @@ public class Trek {
     )
     private Set<Highlight> highlights = new HashSet<>();
 
+    // Added Services relationship
+    @ManyToMany(mappedBy = "treks", fetch = FetchType.LAZY)
+    private Set<Service> services = new HashSet<>();
+
+
+    public void addService(Service service) {
+        this.services.add(service);
+        service.getTreks().add(this);
+    }
+
+    public void removeService(Service service) {
+        this.services.remove(service);
+        service.getTreks().remove(this);
+    }
 
     public void addHighlight(Highlight highlight) {
         this.highlights.add(highlight);

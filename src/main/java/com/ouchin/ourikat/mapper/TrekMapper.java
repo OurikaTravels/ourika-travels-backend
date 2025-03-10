@@ -9,14 +9,16 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {HighlightMapper.class})
+
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {HighlightMapper.class, ServiceMapper.class})
 public interface TrekMapper {
     TrekMapper INSTANCE = Mappers.getMapper(TrekMapper.class);
 
     @Mapping(target = "category", ignore = true)
+    @Mapping(target = "services", ignore = true)
     Trek toEntity(TrekRequest trekRequest);
 
     @Mapping(source = "category.id", target = "categoryId")
+    @Mapping(target = "services", ignore = true)
     TrekResponse toResponse(Trek trek);
-
 }
