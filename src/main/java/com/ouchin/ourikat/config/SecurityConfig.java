@@ -53,6 +53,17 @@ public class SecurityConfig {
                         .requestMatchers("/treks/{trekId}/highlights/**").hasRole("ADMIN")
 
 
+                        // Highlight endpoints
+                        .requestMatchers(HttpMethod.GET, "/services").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/services/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/services").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/services/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/services/{id}").hasRole("ADMIN")
+
+                        // Trek-Highlight relationship management endpoints
+                        .requestMatchers("/treks/{trekId}/services/**").hasRole("ADMIN")
+
+
 
                         .requestMatchers("/tourist/**").hasRole("TOURIST")
                         .requestMatchers("/guide/**").hasRole("GUIDE")

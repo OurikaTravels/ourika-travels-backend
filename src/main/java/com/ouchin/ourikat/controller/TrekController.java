@@ -53,6 +53,21 @@ public class TrekController {
     }
 
 
+    @PostMapping("/{trekId}/services/{serviceId}")
+    public ResponseEntity<TrekResponse> addServiceToTrek(
+            @PathVariable Long trekId,
+            @PathVariable Long serviceId) {
+        return ResponseEntity.ok(trekService.addServiceToTrek(trekId, serviceId));
+    }
+
+    @DeleteMapping("/{trekId}/services/{serviceId}")
+    public ResponseEntity<TrekResponse> removeServiceFromTrek(
+            @PathVariable Long trekId,
+            @PathVariable Long serviceId) {
+        return ResponseEntity.ok(trekService.removeServiceFromTrek(trekId, serviceId));
+    }
+
+
 
 
 }

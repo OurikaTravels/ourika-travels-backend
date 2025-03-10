@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -15,6 +17,7 @@ import java.util.Set;
 @Entity
 @Table(name = "treks")
 @Data
+@NoArgsConstructor
 public class Trek {
 
     @Id
@@ -51,7 +54,6 @@ public class Trek {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "trek_highlights",
@@ -60,20 +62,13 @@ public class Trek {
     )
     private Set<Highlight> highlights = new HashSet<>();
 
-    // Added Services relationship
-    @ManyToMany(mappedBy = "treks", fetch = FetchType.LAZY)
-    private Set<Service> services = new HashSet<>();
-
-
-    public void addService(Service service) {
-        this.services.add(service);
-        service.getTreks().add(this);
-    }
-
-    public void removeService(Service service) {
-        this.services.remove(service);
-        service.getTreks().remove(this);
-    }
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "trek_services",
+            joinColumns = @JoinColumn(name = "trek_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private Set<ServiceEntity> services = new HashSet<>();
 
     public void addHighlight(Highlight highlight) {
         this.highlights.add(highlight);
@@ -83,4 +78,13 @@ public class Trek {
         this.highlights.remove(highlight);
     }
 
+    public void addService(ServiceEntity service) {
+        this.services.add(service);
+        service.getTreks().add(this);
+    }
+
+    public void removeService(ServiceEntity service) {
+        this.services.remove(service);
+        service.getTreks().remove(this);
+    }
 }

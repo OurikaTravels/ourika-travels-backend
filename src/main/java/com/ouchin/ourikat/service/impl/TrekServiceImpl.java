@@ -5,12 +5,13 @@ import com.ouchin.ourikat.dto.request.TrekRequest;
 import com.ouchin.ourikat.dto.response.TrekResponse;
 import com.ouchin.ourikat.entity.Category;
 import com.ouchin.ourikat.entity.Highlight;
+import com.ouchin.ourikat.entity.ServiceEntity;
 import com.ouchin.ourikat.entity.Trek;
-import com.ouchin.ourikat.exception.DuplicateTitleException;
 import com.ouchin.ourikat.exception.ResourceNotFoundException;
 import com.ouchin.ourikat.mapper.TrekMapper;
 import com.ouchin.ourikat.repository.CategoryRepository;
 import com.ouchin.ourikat.repository.HighlightRepository;
+import com.ouchin.ourikat.repository.ServiceEntityRepository;
 import com.ouchin.ourikat.repository.TrekRepository;
 import com.ouchin.ourikat.service.TrekService;
 import jakarta.transaction.Transactional;
@@ -26,12 +27,14 @@ public class TrekServiceImpl implements TrekService {
     private final TrekMapper trekMapper;
     private final HighlightRepository highlightRepository;
     private final CategoryRepository categoryRepository;
+    private final ServiceEntityRepository serviceEntityRepository;
 
-    public TrekServiceImpl(TrekRepository trekRepository, TrekMapper trekMapper, HighlightRepository highlightRepository, CategoryRepository categoryRepository) {
+    public TrekServiceImpl(TrekRepository trekRepository, TrekMapper trekMapper, HighlightRepository highlightRepository, CategoryRepository categoryRepository, ServiceEntityRepository serviceEntityRepository) {
         this.trekRepository = trekRepository;
         this.trekMapper = trekMapper;
         this.highlightRepository = highlightRepository;
         this.categoryRepository = categoryRepository;
+        this.serviceEntityRepository = serviceEntityRepository;
     }
 
     @Override
@@ -127,6 +130,36 @@ public class TrekServiceImpl implements TrekService {
                 .orElseThrow(() -> new ResourceNotFoundException("Highlight not found with id: " + highlightId));
 
         trek.removeHighlight(highlight);
+        trekRepository.save(trek);
+
+        return trekMapper.toResponse(trek);
+    }
+
+    @Override
+    @Transactional
+    public TrekResponse addServiceToTrek(Long trekId, Long serviceId) {
+        Trek trek = trekRepository.findById(trekId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trek not found with id: " + trekId));
+
+        ServiceEntity service = serviceEntityRepository.findById(serviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + serviceId));
+
+        trek.addService(service);
+        trekRepository.save(trek);
+
+        return trekMapper.toResponse(trek);
+    }
+
+    @Override
+    @Transactional
+    public TrekResponse removeServiceFromTrek(Long trekId, Long serviceId) {
+        Trek trek = trekRepository.findById(trekId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trek not found with id: " + trekId));
+
+        ServiceEntity service = serviceEntityRepository.findById(serviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + serviceId));
+
+        trek.removeService(service);
         trekRepository.save(trek);
 
         return trekMapper.toResponse(trek);

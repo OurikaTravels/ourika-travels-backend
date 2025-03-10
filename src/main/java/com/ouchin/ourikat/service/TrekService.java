@@ -17,4 +17,8 @@ public interface TrekService {
 
     TrekResponse addHighlightToTrek(Long trekId, Long highlightId);
     TrekResponse removeHighlightFromTrek(Long trekId, Long highlightId);
+
+
+    TrekResponse addServiceToTrek(Long trekId, Long serviceId);
+    TrekResponse removeServiceFromTrek(Long trekId, Long serviceId);
 }
