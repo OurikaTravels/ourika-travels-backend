@@ -53,15 +53,23 @@ public class SecurityConfig {
                         .requestMatchers("/treks/{trekId}/highlights/**").hasRole("ADMIN")
 
 
-                        // Highlight endpoints
+                        // Services endpoints
                         .requestMatchers(HttpMethod.GET, "/services").permitAll()
                         .requestMatchers(HttpMethod.GET, "/services/{id}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/services").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/services/{id}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/services/{id}").hasRole("ADMIN")
 
-                        // Trek-Highlight relationship management endpoints
+                        // Trek-services relationship management endpoints
                         .requestMatchers("/treks/{trekId}/services/**").hasRole("ADMIN")
+
+
+                        // Activity endpoints
+                        .requestMatchers(HttpMethod.GET, "/activities/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/treks/{trekId}/activities").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/treks/{trekId}/activities").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/activities/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/activities/**").hasRole("ADMIN")
 
 
 

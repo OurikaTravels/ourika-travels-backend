@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -70,6 +72,10 @@ public class Trek {
     )
     private Set<ServiceEntity> services = new HashSet<>();
 
+
+    @OneToMany(mappedBy = "trek", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Activity> activities = new ArrayList<>();
+
     public void addHighlight(Highlight highlight) {
         this.highlights.add(highlight);
     }
@@ -86,5 +92,15 @@ public class Trek {
     public void removeService(ServiceEntity service) {
         this.services.remove(service);
         service.getTreks().remove(this);
+    }
+
+    public void addActivity(Activity activity) {
+        activities.add(activity);
+        activity.setTrek(this);
+    }
+
+    public void removeActivity(Activity activity) {
+        activities.remove(activity);
+        activity.setTrek(null);
     }
 }

@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -22,4 +24,6 @@ public class TrekResponse {
     private Long categoryId;
     private Set<HighlightResponse> highlights;
     private Set<ServiceEntityResponse> services;
+    private List<ActivityResponse> activities = new ArrayList<>();
+
 }
