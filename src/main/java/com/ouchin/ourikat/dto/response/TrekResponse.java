@@ -1,5 +1,6 @@
 package com.ouchin.ourikat.dto.response;
 
+import com.ouchin.ourikat.dto.request.TrekImageResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,5 +26,6 @@ public class TrekResponse {
     private Set<HighlightResponse> highlights;
     private Set<ServiceEntityResponse> services;
     private List<ActivityResponse> activities = new ArrayList<>();
+    private List<TrekImageResponse> images = new ArrayList<>();
 
 }

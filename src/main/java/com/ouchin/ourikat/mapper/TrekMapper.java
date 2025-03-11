@@ -11,7 +11,7 @@ import org.mapstruct.factory.Mappers;
 
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        uses = {HighlightMapper.class, ServiceEntityMapper.class, ActivityMapper.class})
+        uses = {HighlightMapper.class, ServiceEntityMapper.class, ActivityMapper.class, TrekImageMapper.class})
 public interface TrekMapper {
     TrekMapper INSTANCE = Mappers.getMapper(TrekMapper.class);
 
@@ -19,6 +19,7 @@ public interface TrekMapper {
     @Mapping(target = "highlights", ignore = true)
     @Mapping(target = "services", ignore = true)
     @Mapping(target = "activities", ignore = true)
+    @Mapping(target = "images", ignore = true)
     Trek toEntity(TrekRequest trekRequest);
 
     @Mapping(source = "category.id", target = "categoryId")

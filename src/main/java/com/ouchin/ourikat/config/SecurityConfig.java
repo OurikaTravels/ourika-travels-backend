@@ -73,6 +73,16 @@ public class SecurityConfig {
 
 
 
+                        // Trek Images endpoints
+                        .requestMatchers(HttpMethod.GET, "/treks/{trekId}/images").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/treks/{trekId}/images/{fileName}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/treks/{trekId}/images").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/treks/{trekId}/images/{imageId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/treks/{trekId}/images/{imageId}/primary").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/treks/{trekId}/images/bulk").hasRole("ADMIN")
+
+
+
                         .requestMatchers("/tourist/**").hasRole("TOURIST")
                         .requestMatchers("/guide/**").hasRole("GUIDE")
                         .requestMatchers("/admin/**").hasRole("ADMIN")

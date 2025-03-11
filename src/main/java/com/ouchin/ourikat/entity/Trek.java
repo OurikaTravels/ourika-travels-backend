@@ -76,6 +76,9 @@ public class Trek {
     @OneToMany(mappedBy = "trek", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Activity> activities = new ArrayList<>();
 
+    @OneToMany(mappedBy = "trek", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TrekImage> images = new ArrayList<>();
+
     public void addHighlight(Highlight highlight) {
         this.highlights.add(highlight);
     }
@@ -102,5 +105,17 @@ public class Trek {
     public void removeActivity(Activity activity) {
         activities.remove(activity);
         activity.setTrek(null);
+    }
+
+
+
+    public void addImage(TrekImage image) {
+        images.add(image);
+        image.setTrek(this);
+    }
+
+    public void removeImage(TrekImage image) {
+        images.remove(image);
+        image.setTrek(null);
     }
 }
