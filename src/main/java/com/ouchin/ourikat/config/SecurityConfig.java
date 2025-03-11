@@ -81,7 +81,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/treks/{trekId}/images/{imageId}/primary").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/treks/{trekId}/images/bulk").hasRole("ADMIN")
 
-
+                        // Post endpoints for guides
+                        .requestMatchers(HttpMethod.POST, "/posts/guides/{guideId}").hasRole("GUIDE")
+                        .requestMatchers(HttpMethod.GET, "/posts/guides/{guideId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/posts/{postId}").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/posts/{postId}").hasRole("GUIDE")
+                        .requestMatchers(HttpMethod.PUT, "/posts/{postId}/images").hasRole("GUIDE")
+                        .requestMatchers(HttpMethod.DELETE, "/posts/{postId}").hasRole("GUIDE")
 
                         .requestMatchers("/tourist/**").hasRole("TOURIST")
                         .requestMatchers("/guide/**").hasRole("GUIDE")

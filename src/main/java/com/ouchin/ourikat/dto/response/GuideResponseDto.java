@@ -1,9 +1,17 @@
 package com.ouchin.ourikat.dto.response;
 
 import com.ouchin.ourikat.enums.Role;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GuideResponseDto {
     private Long id;
     private String firstName;
@@ -16,4 +24,5 @@ public class GuideResponseDto {
     private String phone;
     private String speciality;
     private String licenseNumber;
+    private List<PostResponseDto> posts;
 }
