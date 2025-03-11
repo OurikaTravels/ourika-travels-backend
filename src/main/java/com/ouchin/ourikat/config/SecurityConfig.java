@@ -89,6 +89,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/posts/{postId}/images").hasRole("GUIDE")
                         .requestMatchers(HttpMethod.DELETE, "/posts/{postId}").hasRole("GUIDE")
 
+
+                        // Add these to your security configuration
+                        .requestMatchers(HttpMethod.POST, "/posts/{postId}/likes").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/posts/{postId}/likes/count").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/posts/{postId}/likes/status").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/posts/{postId}/comments").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/posts/{postId}/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/posts/{postId}/comments/count").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/posts/{postId}/comments/{commentId}").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/posts/{postId}/comments/{commentId}").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/posts/{postId}/comments/{commentId}").authenticated()
+
                         .requestMatchers("/tourist/**").hasRole("TOURIST")
                         .requestMatchers("/guide/**").hasRole("GUIDE")
                         .requestMatchers("/admin/**").hasRole("ADMIN")

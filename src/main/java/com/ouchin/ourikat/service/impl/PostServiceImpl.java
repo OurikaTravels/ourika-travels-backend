@@ -2,17 +2,25 @@ package com.ouchin.ourikat.service.impl;
 
 import com.ouchin.ourikat.dto.request.PostRequestDto;
 import com.ouchin.ourikat.dto.request.PostUpdateRequestDto;
+import com.ouchin.ourikat.dto.response.CommentResponseDto;
 import com.ouchin.ourikat.dto.response.PostResponseDto;
 import com.ouchin.ourikat.entity.Guide;
 import com.ouchin.ourikat.entity.Post;
+import com.ouchin.ourikat.entity.User;
 import com.ouchin.ourikat.exception.ResourceNotFoundException;
+import com.ouchin.ourikat.mapper.CommentMapper;
 import com.ouchin.ourikat.mapper.PostMapper;
 import com.ouchin.ourikat.repository.GuideRepository;
 import com.ouchin.ourikat.repository.PostRepository;
+import com.ouchin.ourikat.repository.UserRepository;
+import com.ouchin.ourikat.service.CommentService;
 import com.ouchin.ourikat.service.FileService;
+import com.ouchin.ourikat.service.LikeService;
 import com.ouchin.ourikat.service.PostService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +36,10 @@ public class PostServiceImpl implements PostService {
     private final GuideRepository guideRepository;
     private final PostMapper postMapper;
     private final FileService fileService;
+    private final LikeService likeService;
+    private final CommentService commentService;
+    private final CommentMapper commentMapper;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
@@ -71,7 +83,20 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
 
-        return postMapper.toResponseDto(post);
+        int likeCount = likeService.getPostLikeCount(postId);
+        int commentCount = commentService.getPostCommentCount(postId);
+        List<CommentResponseDto> comments = commentService.getPostComments(postId);
+
+        // Check if current user has liked the post
+        boolean isLiked = false;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() &&
+                !authentication.getPrincipal().equals("anonymousUser")) {
+            User currentUser = (User) authentication.getPrincipal();
+            isLiked = likeService.isPostLikedByUser(postId, currentUser.getId());
+        }
+
+        return postMapper.toResponseDto(post, likeCount, commentCount, comments, isLiked);
     }
 
     @Override

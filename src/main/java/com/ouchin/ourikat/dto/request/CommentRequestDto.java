@@ -11,11 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostRequestDto {
-    @NotBlank(message = "Title is required")
-    private String title;
-
-    @NotBlank(message = "Description is required")
-    @Size(max = 2000, message = "Description must be less than 2000 characters")
-    private String description;
+public class CommentRequestDto {
+    @NotBlank(message = "Comment content is required")
+    @Size(max = 1000, message = "Comment must be less than 1000 characters")
+    private String content;
 }

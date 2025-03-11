@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,4 +22,9 @@ public class PostResponseDto {
     private LocalDateTime createdAt;
     private Boolean isActive;
     private PostStatus status;
+    private Long guideId;
+    private int likeCount;
+    private int commentCount;
+    private List<CommentResponseDto> comments = new ArrayList<>();
+    private boolean isLikedByCurrentUser;
 }
