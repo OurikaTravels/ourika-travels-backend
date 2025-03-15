@@ -10,7 +10,7 @@ public interface TrekImageService {
     TrekImageResponse addImage(Long trekId, MultipartFile file, Boolean isPrimary);
     List<TrekImageResponse> getImagesByTrekId(Long trekId);
     void deleteImage(Long imageId) throws BadRequestException;
-    TrekImageResponse setImageAsPrimary(Long imageId);
+    TrekImageResponse togglePrimaryStatus(Long imageId);
     void validateTrekImages(Long trekId) throws BadRequestException;
 
 }

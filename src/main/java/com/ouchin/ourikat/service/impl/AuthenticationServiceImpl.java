@@ -68,7 +68,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             User user = userRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-            return new LoginResponseDto(jwt, user.getRole(), user.getEmail());
+            return new LoginResponseDto(jwt, user.getRole(), user.getEmail(), user.getLastName());
         } catch (BadCredentialsException e) {
             log.error("Invalid login credentials for email: {}", request.getEmail());
             throw new AuthenticationFailedException("Invalid email or password");

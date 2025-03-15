@@ -27,6 +27,8 @@ public class TrekImageServiceImpl implements TrekImageService {
     private final TrekImageMapper trekImageMapper;
     private final FileService fileService;
 
+
+
     @Override
     @Transactional
     public TrekImageResponse addImage(Long trekId, MultipartFile file, Boolean isPrimary) {
@@ -102,21 +104,23 @@ public class TrekImageServiceImpl implements TrekImageService {
 
     @Override
     @Transactional
-    public TrekImageResponse setImageAsPrimary(Long imageId) {
+    public TrekImageResponse togglePrimaryStatus(Long imageId) {
+
         TrekImage image = trekImageRepository.findById(imageId)
                 .orElseThrow(() -> new ResourceNotFoundException("Image not found with id: " + imageId));
 
         Long trekId = image.getTrek().getId();
 
 
-        trekImageRepository.findByTrekIdAndIsPrimaryTrue(trekId)
-                .forEach(img -> {
-                    img.setIsPrimary(false);
-                    trekImageRepository.save(img);
-                });
+        boolean newPrimaryStatus = !image.getIsPrimary();
+
+        if (newPrimaryStatus) {
+
+            trekImageRepository.unsetAllPrimaryImagesForTrek(trekId);
+        }
 
 
-        image.setIsPrimary(true);
+        image.setIsPrimary(newPrimaryStatus);
         image = trekImageRepository.save(image);
 
         return trekImageMapper.toResponse(image);

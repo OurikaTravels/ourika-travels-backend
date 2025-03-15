@@ -1,6 +1,7 @@
 package com.ouchin.ourikat.controller;
 
 import com.ouchin.ourikat.dto.request.TrekImageResponse;
+import com.ouchin.ourikat.dto.request.UpdatePrimaryRequest;
 import com.ouchin.ourikat.service.FileService;
 import com.ouchin.ourikat.service.TrekImageService;
 import lombok.RequiredArgsConstructor;
@@ -59,10 +60,10 @@ public class TrekImageController {
 
     @PutMapping("/{imageId}/primary")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<TrekImageResponse> setImageAsPrimary(
+    public ResponseEntity<TrekImageResponse> togglePrimaryStatus(
             @PathVariable Long trekId,
             @PathVariable Long imageId) {
-        TrekImageResponse response = trekImageService.setImageAsPrimary(imageId);
+        TrekImageResponse response = trekImageService.togglePrimaryStatus(imageId);
         return ResponseEntity.ok(response);
     }
 

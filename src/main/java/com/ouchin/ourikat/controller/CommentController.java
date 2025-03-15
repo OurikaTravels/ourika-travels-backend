@@ -79,7 +79,7 @@ public class CommentController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
-        commentService.deleteComment(commentId, user.getId());
+            commentService.deleteComment(commentId, user.getId());
 
         return ResponseEntity.ok(new ApiResponse<>("Comment deleted successfully", true));
     }

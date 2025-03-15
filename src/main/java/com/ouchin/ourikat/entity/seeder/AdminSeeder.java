@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class AdminSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;  
 
     @Autowired
     public AdminSeeder(UserRepository userRepository, PasswordEncoder passwordEncoder) {
