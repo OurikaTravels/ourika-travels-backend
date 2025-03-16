@@ -12,5 +12,7 @@ public interface GuideMapper {
     Guide toEntity(GuideRegistrationRequestDto requestDto);
 
     @Mapping(target = "posts", source = "posts")
+    @Mapping(target = "aboutYou", source = "aboutYou")
+    @Mapping(target = "profileImage", source = "profileImage")
     GuideResponseDto toResponseDto(Guide guide);
 }
