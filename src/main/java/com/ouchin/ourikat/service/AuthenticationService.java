@@ -41,4 +41,5 @@ public interface AuthenticationService {
     void generatePasswordResetToken(String email);
     void resetPassword(String token, String newPassword);
     GuideResponseDto validateGuide(Long guideId);
+    void updateProfileImage(Long guideId, String fileName);
 }

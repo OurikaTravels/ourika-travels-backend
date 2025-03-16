@@ -118,6 +118,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         guide.setPassword(passwordEncoder.encode(request.getPassword()));
         guide.setRole(Role.GUIDE);
         guide.setVerified(false);
+        guide.setAboutYou(request.getAboutYou());
 
         Guide savedGuide = guideRepository.save(guide);
         log.info("Guide registered successfully: {}", savedGuide.getEmail());
@@ -191,5 +192,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(user);
 
         passwordResetTokenRepository.delete(resetToken);
+    }
+
+
+    @Override
+    @Transactional
+    public void updateProfileImage(Long guideId, String fileName) {
+        Guide guide = guideRepository.findById(guideId)
+                .orElseThrow(() -> new ResourceNotFoundException("Guide not found"));
+
+        guide.setProfileImage(fileName);
+        guideRepository.save(guide);
+        log.info("Profile image updated for guide with ID: {}", guideId);
     }
 }

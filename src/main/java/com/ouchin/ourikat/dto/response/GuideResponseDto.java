@@ -25,5 +25,7 @@ public class GuideResponseDto {
     private String speciality;
     private String licenseNumber;
     private Boolean isValidateGuide;
+    private String aboutYou;
+    private String profileImage;
     private List<PostResponseDto> posts;
 }

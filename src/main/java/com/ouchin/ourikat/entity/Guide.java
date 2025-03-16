@@ -42,6 +42,12 @@ public class Guide extends User {
     @Column(nullable = false, columnDefinition = "boolean default false")
     private Boolean isValidateGuide = false;
 
+    @Column(columnDefinition = "TEXT")
+    private String aboutYou;
+
+    @Column
+    private String profileImage;
+
     @OneToMany(mappedBy = "guide", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 }

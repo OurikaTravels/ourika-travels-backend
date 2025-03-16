@@ -113,6 +113,7 @@ public class SecurityConfig {
                         .requestMatchers("/guide/**").hasRole("GUIDE")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/auth/validate-guide/").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/auth/upload-profile-image").hasRole("ADMIN")
 
 
                         .anyRequest().authenticated()

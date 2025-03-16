@@ -3,12 +3,14 @@ package com.ouchin.ourikat.controller;
 import com.ouchin.ourikat.dto.request.*;
 import com.ouchin.ourikat.dto.response.*;
 import com.ouchin.ourikat.service.AuthenticationService;
+import com.ouchin.ourikat.service.FileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/auth")
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final FileService fileService;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponseDto>> login(@Valid @RequestBody LoginRequestDto request) {
@@ -113,6 +116,26 @@ public class AuthenticationController {
             log.error("Failed to validate guide: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
+
+
+    @PostMapping("/upload-profile-image/{guideId}")
+    public ResponseEntity<ApiResponse<String>> uploadProfileImage(
+            @PathVariable Long guideId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            log.info("Uploading profile image for guide with ID: {}", guideId);
+            String fileName = fileService.saveFile(file);
+
+            // Update the guide's profile image in the database
+            authenticationService.updateProfileImage(guideId, fileName);
+
+            return ResponseEntity.ok(new ApiResponse<>(true, "Profile image uploaded successfully", fileName));
+        } catch (Exception e) {
+            log.error("Failed to upload profile image: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, "Failed to upload profile image", null));
         }
     }
 }

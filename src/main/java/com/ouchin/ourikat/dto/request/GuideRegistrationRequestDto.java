@@ -28,4 +28,5 @@ public class GuideRegistrationRequestDto {
     private String phone;
     private String speciality;
     private String licenseNumber;
+    private String aboutYou;
 }
