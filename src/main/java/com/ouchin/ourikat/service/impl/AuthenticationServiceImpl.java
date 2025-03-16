@@ -1,16 +1,11 @@
 package com.ouchin.ourikat.service.impl;
 
 import com.ouchin.ourikat.config.security.JwtTokenProvider;
-import com.ouchin.ourikat.dto.request.LoginRequestDto;
-import com.ouchin.ourikat.dto.request.TouristRegistrationRequestDto;
-import com.ouchin.ourikat.dto.request.GuideRegistrationRequestDto;
-import com.ouchin.ourikat.dto.response.LoginResponseDto;
-import com.ouchin.ourikat.dto.response.TouristResponseDto;
-import com.ouchin.ourikat.dto.response.GuideResponseDto;
+import com.ouchin.ourikat.dto.request.*;
+import com.ouchin.ourikat.dto.response.*;
 import com.ouchin.ourikat.entity.*;
-import com.ouchin.ourikat.exception.AuthenticationFailedException;
-import com.ouchin.ourikat.exception.EmailAlreadyExistsException;
-import com.ouchin.ourikat.exception.ResourceNotFoundException;
+import com.ouchin.ourikat.enums.Role;
+import com.ouchin.ourikat.exception.*;
 import com.ouchin.ourikat.mapper.GuideMapper;
 import com.ouchin.ourikat.mapper.TouristMapper;
 import com.ouchin.ourikat.repository.*;
@@ -46,8 +41,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final GuideMapper guideMapper;
     private final VerificationTokenRepository verificationTokenRepository;
     private final EmailService emailService;
-    private final PasswordResetTokenRepository  passwordResetTokenRepository;
-
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Override
     @Transactional
@@ -78,18 +72,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public TouristResponseDto registerTourist(TouristRegistrationRequestDto request) {
-
         if (isEmailAlreadyRegistered(request.getEmail())) {
             log.warn("Registration attempt with existing email: {}", request.getEmail());
             throw new EmailAlreadyExistsException("Email already in use");
         }
 
         Tourist tourist = touristMapper.toEntity(request);
-
         tourist.setPassword(passwordEncoder.encode(request.getPassword()));
+        tourist.setRole(Role.TOURIST);
+        tourist.setVerified(false);
 
         Tourist savedTourist = touristRepository.save(tourist);
-
         log.info("Tourist registered successfully: {}", savedTourist.getEmail());
 
         String token = UUID.randomUUID().toString();
@@ -109,11 +102,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         Guide guide = guideMapper.toEntity(request);
-
         guide.setPassword(passwordEncoder.encode(request.getPassword()));
+        guide.setRole(Role.GUIDE);
+        guide.setVerified(false);
 
         Guide savedGuide = guideRepository.save(guide);
-
         log.info("Guide registered successfully: {}", savedGuide.getEmail());
 
         String token = UUID.randomUUID().toString();
@@ -129,13 +122,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return userRepository.existsByEmail(email);
     }
 
-
     @Override
     @Transactional
     public void generateVerificationToken(User user, String token) {
         VerificationToken verificationToken = new VerificationToken();
         verificationToken.setToken(token);
         verificationToken.setUser(user);
+        verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24));
         verificationTokenRepository.save(verificationToken);
     }
 
@@ -155,7 +148,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         verificationTokenRepository.delete(verificationToken);
     }
 
-
     @Override
     @Transactional
     public void generatePasswordResetToken(String email) {
@@ -165,11 +157,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setToken(UUID.randomUUID().toString());
         resetToken.setUser(user);
+        resetToken.setExpiryDate(LocalDateTime.now().plusHours(1));
         passwordResetTokenRepository.save(resetToken);
 
         emailService.sendPasswordResetEmail(user.getEmail(), resetToken.getToken());
     }
-
 
     @Override
     @Transactional
@@ -182,10 +174,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         User user = resetToken.getUser();
-
-        String encodedPassword = passwordEncoder.encode(newPassword);
-
-        user.setPassword(encodedPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
         passwordResetTokenRepository.delete(resetToken);

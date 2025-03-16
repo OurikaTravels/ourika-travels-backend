@@ -1,13 +1,7 @@
 package com.ouchin.ourikat.controller;
 
-import com.ouchin.ourikat.dto.request.LoginRequestDto;
-import com.ouchin.ourikat.dto.request.ResetPasswordRequestDto;
-import com.ouchin.ourikat.dto.request.TouristRegistrationRequestDto;
-import com.ouchin.ourikat.dto.request.GuideRegistrationRequestDto;
-import com.ouchin.ourikat.dto.response.ApiResponse;
-import com.ouchin.ourikat.dto.response.LoginResponseDto;
-import com.ouchin.ourikat.dto.response.TouristResponseDto;
-import com.ouchin.ourikat.dto.response.GuideResponseDto;
+import com.ouchin.ourikat.dto.request.*;
+import com.ouchin.ourikat.dto.response.*;
 import com.ouchin.ourikat.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +31,6 @@ public class AuthenticationController {
         }
     }
 
-
     @PostMapping("/register/tourist")
     public ResponseEntity<ApiResponse<TouristResponseDto>> registerTourist(
             @Valid @RequestBody TouristRegistrationRequestDto request) {
@@ -55,7 +48,6 @@ public class AuthenticationController {
                     .body(new ApiResponse<>(false, errorMessage, null));
         }
     }
-
 
     @PostMapping("/register/guide")
     public ResponseEntity<ApiResponse<GuideResponseDto>> registerGuide(
@@ -86,6 +78,16 @@ public class AuthenticationController {
         }
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@RequestParam String email) {
+        try {
+            authenticationService.generatePasswordResetToken(email);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Password reset email sent", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
 
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<Void>> resetPassword(
@@ -94,17 +96,6 @@ public class AuthenticationController {
         try {
             authenticationService.resetPassword(token, request.getNewPassword());
             return ResponseEntity.ok(new ApiResponse<>(true, "Password reset successfully", null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>(false, e.getMessage(), null));
-        }
-    }
-
-    @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponse<Void>> forgotPassword(@RequestParam String email) {
-        try {
-            authenticationService.generatePasswordResetToken(email);
-            return ResponseEntity.ok(new ApiResponse<>(true, "Password reset email sent", null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(false, e.getMessage(), null));

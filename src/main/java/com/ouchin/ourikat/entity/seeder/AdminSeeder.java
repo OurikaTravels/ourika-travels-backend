@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class AdminSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;  
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public AdminSeeder(UserRepository userRepository, PasswordEncoder passwordEncoder) {
@@ -22,17 +22,18 @@ public class AdminSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-
+        // Check if an admin user already exists
         if (userRepository.findByEmail("admin@example.com").isEmpty()) {
-
+            // Create a new Admin instance
             Admin admin = new Admin();
             admin.setFirstName("Admin");
             admin.setLastName("User");
             admin.setEmail("admin@example.com");
-            admin.setPassword(passwordEncoder.encode("admin123"));
-            admin.setRole(Role.ADMIN);
-            admin.setVerified(true);
+            admin.setPassword(passwordEncoder.encode("admin123")); // Encode the password
+            admin.setRole(Role.ADMIN); // Set the role to ADMIN
+            admin.setVerified(true); // Mark the admin as verified
 
+            // Save the admin to the database
             userRepository.save(admin);
 
             System.out.println("Admin user created successfully!");
