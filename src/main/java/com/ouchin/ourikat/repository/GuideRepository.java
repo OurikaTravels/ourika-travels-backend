@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GuideRepository extends JpaRepository<Guide, Long> {
+    long count();
+    long countByIsValidateGuide(Boolean isValidateGuide);
 }

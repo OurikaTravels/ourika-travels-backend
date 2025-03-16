@@ -13,4 +13,5 @@ import java.util.List;
 @DiscriminatorValue("TOURIST")
 public class Tourist extends User {
     private String nationality;
+
 }

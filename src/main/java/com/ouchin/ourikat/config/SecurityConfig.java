@@ -115,7 +115,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/auth/validate-guide/").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/auth/upload-profile-image").hasRole("ADMIN")
 
+                        // Profile update endpoints
+                        .requestMatchers(HttpMethod.PATCH, "/users/tourists/{touristId}/profile").hasRole("TOURIST")
+                        .requestMatchers(HttpMethod.PATCH, "/users/guides/{guideId}/profile").hasRole("GUIDE")
 
+                        // Admin statistics endpoint
+                        .requestMatchers(HttpMethod.GET, "/users/admin/statistics").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

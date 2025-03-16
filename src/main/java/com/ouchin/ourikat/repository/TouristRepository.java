@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TouristRepository extends JpaRepository<Tourist, Long> {
+    long count();
 }
