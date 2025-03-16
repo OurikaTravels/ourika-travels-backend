@@ -4,6 +4,7 @@ import com.ouchin.ourikat.dto.request.ReservationRequestDto;
 import com.ouchin.ourikat.dto.request.AssignGuideRequestDto;
 import com.ouchin.ourikat.dto.response.ApiResponse;
 import com.ouchin.ourikat.dto.response.ReservationResponseDto;
+import com.ouchin.ourikat.dto.response.ReservationStatisticsResponseDto;
 import com.ouchin.ourikat.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,9 +49,23 @@ public class ReservationController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Guide assigned successfully", reservation));
     }
 
-    @GetMapping("/statistics")
-    public ResponseEntity<ApiResponse<Long>> getTotalReservations() {
-        long totalReservations = reservationService.getTotalReservations();
-        return ResponseEntity.ok(new ApiResponse<>(true, "Total reservations retrieved", totalReservations));
+    @PatchMapping("/{reservationId}/approve")
+    public ResponseEntity<ApiResponse<ReservationResponseDto>> approveReservation(@PathVariable Long reservationId) {
+        ReservationResponseDto reservation = reservationService.approveReservation(reservationId);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Reservation approved successfully", reservation));
     }
+
+    @PatchMapping("/{reservationId}/cancel-by-admin")
+    public ResponseEntity<ApiResponse<ReservationResponseDto>> cancelReservationByAdmin(@PathVariable Long reservationId) {
+        ReservationResponseDto reservation = reservationService.cancelReservationByAdmin(reservationId);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Reservation cancelled by admin", reservation));
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<ApiResponse<ReservationStatisticsResponseDto>> getReservationStatistics() {
+        ReservationStatisticsResponseDto statistics = reservationService.getReservationStatistics();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Reservation statistics retrieved successfully", statistics));
+    }
+
+
 }

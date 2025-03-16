@@ -1,6 +1,5 @@
 package com.ouchin.ourikat.entity;
 
-
 import com.ouchin.ourikat.enums.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -42,8 +41,8 @@ public class Reservation {
     @Column(nullable = false)
     private Double totalPrice;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ReservationStatus status = ReservationStatus.PENDING;
-
 
 }

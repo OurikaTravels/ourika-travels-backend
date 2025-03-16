@@ -3,6 +3,7 @@ package com.ouchin.ourikat.service.impl;
 import com.ouchin.ourikat.dto.request.ReservationRequestDto;
 import com.ouchin.ourikat.dto.request.AssignGuideRequestDto;
 import com.ouchin.ourikat.dto.response.ReservationResponseDto;
+import com.ouchin.ourikat.dto.response.ReservationStatisticsResponseDto;
 import com.ouchin.ourikat.entity.*;
 import com.ouchin.ourikat.enums.ReservationStatus;
 import com.ouchin.ourikat.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import com.ouchin.ourikat.repository.*;
 import com.ouchin.ourikat.service.EmailService;
 import com.ouchin.ourikat.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -44,11 +47,12 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setStartDate(request.getStartDate());
         reservation.setEndDate(request.getEndDate());
         reservation.setTotalPrice(trek.getPrice());
+        reservation.setStatus(ReservationStatus.PENDING);
 
         Reservation savedReservation = reservationRepository.save(reservation);
 
         // Send email to tourist
-        emailService.sendReservationConfirmationEmail(tourist.getEmail(), savedReservation);
+        //emailService.sendReservationConfirmationEmail(tourist.getEmail(), savedReservation);
 
         return reservationMapper.toResponseDto(savedReservation);
     }
@@ -83,7 +87,7 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Guide not found"));
 
         reservation.setGuide(guide);
-        reservation.setStatus(ReservationStatus.CONFIRMED);
+        reservation.setStatus(ReservationStatus.APPROVED); // Set status to APPROVED
         Reservation updatedReservation = reservationRepository.save(reservation);
 
         // Send email to guide
@@ -93,7 +97,49 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @Transactional
+    public ReservationResponseDto approveReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+
+        reservation.setStatus(ReservationStatus.APPROVED); // Set status to APPROVED
+        Reservation updatedReservation = reservationRepository.save(reservation);
+
+        // Send email to tourist
+        emailService.sendReservationApprovalEmail(reservation.getTourist().getEmail(), updatedReservation);
+
+        return reservationMapper.toResponseDto(updatedReservation);
+    }
+
+    @Override
+    @Transactional
+    public ReservationResponseDto cancelReservationByAdmin(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+
+        reservation.setStatus(ReservationStatus.CANCELLED);
+        Reservation updatedReservation = reservationRepository.save(reservation);
+
+        // Send email to tourist
+        emailService.sendReservationCancellationEmail(reservation.getTourist().getEmail(), updatedReservation);
+
+        return reservationMapper.toResponseDto(updatedReservation);
+    }
+
+    @Override
     public long getTotalReservations() {
         return reservationRepository.count();
+    }
+
+
+    @Override
+    public ReservationStatisticsResponseDto getReservationStatistics() {
+        long totalReservations = reservationRepository.count();
+        long totalPendingReservations = reservationRepository.countByStatus(ReservationStatus.PENDING);
+
+        log.info("Total Reservations: {}", totalReservations);
+        log.info("Total Pending Reservations: {}", totalPendingReservations);
+
+        return new ReservationStatisticsResponseDto(totalReservations, totalPendingReservations);
     }
 }

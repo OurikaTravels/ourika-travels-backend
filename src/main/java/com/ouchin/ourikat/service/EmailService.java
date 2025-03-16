@@ -64,4 +64,14 @@ public class EmailService {
         message.setText("You have been assigned to guide the trek: " + reservation.getTrek().getTitle());
         mailSender.send(message);
     }
+
+    public void sendReservationApprovalEmail(String to, Reservation reservation) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Reservation Approved");
+        message.setText("Your reservation for " + reservation.getTrek().getTitle() + " has been approved.");
+        mailSender.send(message);
+    }
+
+
 }

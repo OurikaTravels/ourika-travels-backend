@@ -129,6 +129,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/reservations").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/reservations/{reservationId}/assign-guide").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/reservations/statistics").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.PATCH, "/reservations/{reservationId}/approve").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/reservations/{reservationId}/cancel-by-admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
 
 
