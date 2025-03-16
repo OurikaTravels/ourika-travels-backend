@@ -26,5 +26,5 @@ public class TouristRegistrationRequestDto {
     private String password;
 
     private String nationality;
-    private List<String> preferences;
+
 }

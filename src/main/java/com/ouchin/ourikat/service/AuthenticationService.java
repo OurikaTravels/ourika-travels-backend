@@ -40,4 +40,5 @@ public interface AuthenticationService {
     void verifyEmail(String token);
     void generatePasswordResetToken(String email);
     void resetPassword(String token, String newPassword);
+    GuideResponseDto validateGuide(Long guideId);
 }

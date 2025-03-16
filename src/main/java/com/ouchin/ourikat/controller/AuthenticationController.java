@@ -101,4 +101,18 @@ public class AuthenticationController {
                     .body(new ApiResponse<>(false, e.getMessage(), null));
         }
     }
+
+
+    @PatchMapping("/validate-guide/{guideId}")
+    public ResponseEntity<ApiResponse<GuideResponseDto>> validateGuide(@PathVariable Long guideId) {
+        try {
+            log.info("Validating guide with ID: {}", guideId);
+            GuideResponseDto validatedGuide = authenticationService.validateGuide(guideId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Guide validated successfully", validatedGuide));
+        } catch (Exception e) {
+            log.error("Failed to validate guide: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
 }

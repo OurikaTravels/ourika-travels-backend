@@ -39,6 +39,9 @@ public class Guide extends User {
     @Pattern(regexp = "^[A-Z0-9]{5,20}$", message = "License number must be 5-20 alphanumeric characters (uppercase)")
     private String licenseNumber;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean isValidateGuide = false;
+
     @OneToMany(mappedBy = "guide", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 }

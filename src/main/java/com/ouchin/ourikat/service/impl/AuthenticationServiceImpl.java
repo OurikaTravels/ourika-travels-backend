@@ -95,6 +95,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     @Transactional
+    public GuideResponseDto validateGuide(Long guideId) {
+        Guide guide = guideRepository.findById(guideId)
+                .orElseThrow(() -> new ResourceNotFoundException("Guide not found"));
+
+        guide.setIsValidateGuide(true);
+        Guide validatedGuide = guideRepository.save(guide);
+
+        log.info("Guide validated successfully: {}", validatedGuide.getEmail());
+        return guideMapper.toResponseDto(validatedGuide);
+    }
+
+    @Override
+    @Transactional
     public GuideResponseDto registerGuide(GuideRegistrationRequestDto request) {
         if (isEmailAlreadyRegistered(request.getEmail())) {
             log.warn("Registration attempt with existing email: {}", request.getEmail());

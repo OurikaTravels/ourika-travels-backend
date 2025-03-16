@@ -112,6 +112,8 @@ public class SecurityConfig {
                         .requestMatchers("/tourist/**").hasRole("TOURIST")
                         .requestMatchers("/guide/**").hasRole("GUIDE")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/auth/validate-guide/").hasRole("ADMIN")
+
 
                         .anyRequest().authenticated()
                 )
