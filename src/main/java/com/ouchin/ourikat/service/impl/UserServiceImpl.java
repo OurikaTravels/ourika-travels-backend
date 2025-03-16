@@ -18,6 +18,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -76,5 +79,30 @@ public class UserServiceImpl implements UserService {
                 validatedGuides,
                 nonValidatedGuides
         );
+    }
+
+
+    @Override
+    public List<TouristResponseDto> getAllTourists() {
+        List<Tourist> tourists = touristRepository.findAll();
+        return tourists.stream()
+                .map(touristMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GuideResponseDto> getAllGuidesOrderByReservationAssignmentDate() {
+        List<Guide> guides = guideRepository.findAllGuidesOrderByReservationAssignmentDate();
+        return guides.stream()
+                .map(guideMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GuideResponseDto> getAllGuides() {
+        List<Guide> guides = guideRepository.findAll();
+        return guides.stream()
+                .map(guideMapper::toResponseDto)
+                .collect(Collectors.toList());
     }
 }

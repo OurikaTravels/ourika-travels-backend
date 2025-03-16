@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -39,5 +41,24 @@ public class UserController {
     public ResponseEntity<ApiResponse<AdminStatisticsResponseDto>> getAdminStatistics() {
         AdminStatisticsResponseDto statistics = userService.getAdminStatistics();
         return ResponseEntity.ok(new ApiResponse<>(true, "Admin statistics retrieved successfully", statistics));
+    }
+
+
+    @GetMapping("/tourists")
+    public ResponseEntity<ApiResponse<List<TouristResponseDto>>> getAllTourists() {
+        List<TouristResponseDto> tourists = userService.getAllTourists();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Tourists retrieved successfully", tourists));
+    }
+
+    @GetMapping("/guides/ordered-by-reservation-date")
+    public ResponseEntity<ApiResponse<List<GuideResponseDto>>> getAllGuidesOrderByReservationAssignmentDate() {
+        List<GuideResponseDto> guides = userService.getAllGuidesOrderByReservationAssignmentDate();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Guides retrieved successfully", guides));
+    }
+
+    @GetMapping("/guides")
+    public ResponseEntity<ApiResponse<List<GuideResponseDto>>> getAllGuides() {
+        List<GuideResponseDto> guides = userService.getAllGuides();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Guides retrieved successfully", guides));
     }
 }

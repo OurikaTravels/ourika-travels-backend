@@ -50,4 +50,7 @@ public class Guide extends User {
 
     @OneToMany(mappedBy = "guide", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "guide", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reservation> reservations = new ArrayList<>();
 }
