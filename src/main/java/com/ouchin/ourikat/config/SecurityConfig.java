@@ -132,6 +132,11 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.PATCH, "/reservations/{reservationId}/approve").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/reservations/{reservationId}/cancel-by-admin").hasRole("ADMIN")
+
+
+                        .requestMatchers(HttpMethod.POST, "/wishlists/tourists/{touristId}/add").hasRole("TOURIST")
+                        .requestMatchers(HttpMethod.DELETE, "/wishlists/tourists/{touristId}/remove/{trekId}").hasRole("TOURIST")
+                        .requestMatchers(HttpMethod.GET, "/wishlists/tourists/{touristId}").hasRole("TOURIST")
                         .anyRequest().authenticated()
 
 
