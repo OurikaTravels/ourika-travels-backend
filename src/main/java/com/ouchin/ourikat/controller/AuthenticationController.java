@@ -2,6 +2,8 @@ package com.ouchin.ourikat.controller;
 
 import com.ouchin.ourikat.dto.request.*;
 import com.ouchin.ourikat.dto.response.*;
+import com.ouchin.ourikat.exception.AuthenticationFailedException;
+import com.ouchin.ourikat.exception.GuideNotValidatedException;
 import com.ouchin.ourikat.service.AuthenticationService;
 import com.ouchin.ourikat.service.FileService;
 import jakarta.validation.Valid;
@@ -27,10 +29,18 @@ public class AuthenticationController {
             log.info("Login attempt for user: {}", request.getEmail());
             LoginResponseDto response = authenticationService.login(request);
             return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", response));
-        } catch (Exception e) {
+        } catch (AuthenticationFailedException e) {
             log.error("Login failed: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse<>(false, "Invalid email or password", null));
+        } catch (GuideNotValidatedException e) {
+            log.error("Login failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ApiResponse<>(false, e.getMessage(), null));
+        } catch (Exception e) {
+            log.error("Login failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "An error occurred during login", null));
         }
     }
 

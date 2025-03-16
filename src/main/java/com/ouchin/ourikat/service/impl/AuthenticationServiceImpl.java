@@ -47,6 +47,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Transactional
     public LoginResponseDto login(LoginRequestDto request) {
         try {
+            // Authenticate the user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
@@ -56,12 +57,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String jwt = jwtTokenProvider.generateToken(userDetails);
-
+            // Fetch the user from the database
             User user = userRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+            // Check if the user is a guide and if they are validated
+            if (user.getRole() == Role.GUIDE) {
+                Guide guide = guideRepository.findById(user.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Guide not found"));
+
+                if (!guide.getIsValidateGuide()) {
+                    throw new AuthenticationFailedException("Guide is not validated. Please contact the administrator.");
+                }
+            }
+
+            // Generate JWT token
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String jwt = jwtTokenProvider.generateToken(userDetails);
+
+            // Return the login response
             return new LoginResponseDto(jwt, user.getRole(), user.getEmail(), user.getLastName());
         } catch (BadCredentialsException e) {
             log.error("Invalid login credentials for email: {}", request.getEmail());
