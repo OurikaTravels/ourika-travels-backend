@@ -99,7 +99,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Guide guide = guideRepository.findById(guideId)
                 .orElseThrow(() -> new ResourceNotFoundException("Guide not found"));
 
-        guide.setIsValidateGuide(true);
+        guide.setIsValidateGuide(!guide.getIsValidateGuide());
+
         Guide validatedGuide = guideRepository.save(guide);
 
         log.info("Guide validated successfully: {}", validatedGuide.getEmail());
