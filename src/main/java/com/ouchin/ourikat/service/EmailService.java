@@ -1,5 +1,6 @@
 package com.ouchin.ourikat.service;
 
+import com.ouchin.ourikat.entity.Reservation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -36,6 +37,31 @@ public class EmailService {
         message.setTo(to);
         message.setSubject("Reset Your Password");
         message.setText("Click the link to reset your password: http://localhost:8080/api/auth/reset-password?token=" + token);
+        mailSender.send(message);
+    }
+
+
+    public void sendReservationConfirmationEmail(String to, Reservation reservation) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Reservation Confirmation");
+        message.setText("Your reservation for " + reservation.getTrek().getTitle() + " has been confirmed.");
+        mailSender.send(message);
+    }
+
+    public void sendReservationCancellationEmail(String to, Reservation reservation) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Reservation Cancellation");
+        message.setText("Your reservation for " + reservation.getTrek().getTitle() + " has been cancelled.");
+        mailSender.send(message);
+    }
+
+    public void sendGuideAssignmentEmail(String to, Reservation reservation) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("New Reservation Assignment");
+        message.setText("You have been assigned to guide the trek: " + reservation.getTrek().getTitle());
         mailSender.send(message);
     }
 }

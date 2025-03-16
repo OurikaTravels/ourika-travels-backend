@@ -121,7 +121,17 @@ public class SecurityConfig {
 
                         // Admin statistics endpoint
                         .requestMatchers(HttpMethod.GET, "/users/admin/statistics").hasRole("ADMIN")
+
+
+
+                        .requestMatchers(HttpMethod.POST, "/reservations/tourists/{touristId}/reserve").hasRole("TOURIST")
+                        .requestMatchers(HttpMethod.PATCH, "/reservations/{reservationId}/cancel").hasRole("TOURIST")
+                        .requestMatchers(HttpMethod.GET, "/reservations").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/reservations/{reservationId}/assign-guide").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/reservations/statistics").hasRole("ADMIN")
                         .anyRequest().authenticated()
+
+
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

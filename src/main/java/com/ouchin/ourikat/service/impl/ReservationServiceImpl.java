@@ -1,0 +1,99 @@
+package com.ouchin.ourikat.service.impl;
+
+import com.ouchin.ourikat.dto.request.ReservationRequestDto;
+import com.ouchin.ourikat.dto.request.AssignGuideRequestDto;
+import com.ouchin.ourikat.dto.response.ReservationResponseDto;
+import com.ouchin.ourikat.entity.*;
+import com.ouchin.ourikat.enums.ReservationStatus;
+import com.ouchin.ourikat.exception.ResourceNotFoundException;
+import com.ouchin.ourikat.mapper.ReservationMapper;
+import com.ouchin.ourikat.repository.*;
+import com.ouchin.ourikat.service.EmailService;
+import com.ouchin.ourikat.service.ReservationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ReservationServiceImpl implements ReservationService {
+
+    private final ReservationRepository reservationRepository;
+    private final TouristRepository touristRepository;
+    private final TrekRepository trekRepository;
+    private final GuideRepository guideRepository;
+    private final ReservationMapper reservationMapper;
+    private final EmailService emailService;
+
+    @Override
+    @Transactional
+    public ReservationResponseDto createReservation(Long touristId, ReservationRequestDto request) {
+        Tourist tourist = touristRepository.findById(touristId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tourist not found"));
+
+        Trek trek = trekRepository.findById(request.getTrekId())
+                .orElseThrow(() -> new ResourceNotFoundException("Trek not found"));
+
+        Reservation reservation = new Reservation();
+        reservation.setTourist(tourist);
+        reservation.setTrek(trek);
+        reservation.setReservationDate(LocalDateTime.now());
+        reservation.setStartDate(request.getStartDate());
+        reservation.setEndDate(request.getEndDate());
+        reservation.setTotalPrice(trek.getPrice());
+
+        Reservation savedReservation = reservationRepository.save(reservation);
+
+        // Send email to tourist
+        emailService.sendReservationConfirmationEmail(tourist.getEmail(), savedReservation);
+
+        return reservationMapper.toResponseDto(savedReservation);
+    }
+
+    @Override
+    @Transactional
+    public void cancelReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+
+        reservation.setStatus(ReservationStatus.CANCELLED);
+        reservationRepository.save(reservation);
+
+        // Send email to tourist
+        emailService.sendReservationCancellationEmail(reservation.getTourist().getEmail(), reservation);
+    }
+
+    @Override
+    public List<ReservationResponseDto> getAllReservations() {
+        return reservationRepository.findAll().stream()
+                .map(reservationMapper::toResponseDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public ReservationResponseDto assignGuideToReservation(Long reservationId, AssignGuideRequestDto request) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+
+        Guide guide = guideRepository.findById(request.getGuideId())
+                .orElseThrow(() -> new ResourceNotFoundException("Guide not found"));
+
+        reservation.setGuide(guide);
+        reservation.setStatus(ReservationStatus.CONFIRMED);
+        Reservation updatedReservation = reservationRepository.save(reservation);
+
+        // Send email to guide
+        emailService.sendGuideAssignmentEmail(guide.getEmail(), updatedReservation);
+
+        return reservationMapper.toResponseDto(updatedReservation);
+    }
+
+    @Override
+    public long getTotalReservations() {
+        return reservationRepository.count();
+    }
+}
