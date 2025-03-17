@@ -139,6 +139,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/users/guides/ordered-by-reservation-date").hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/users/guides").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/auth/validate-guide/{guideId}").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/users/guides/{guideId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/reservation/notify-guide/{guideId}").hasRole("GUIDE")
                         .anyRequest().authenticated()
 
 

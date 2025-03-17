@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -141,5 +142,16 @@ public class ReservationServiceImpl implements ReservationService {
         log.info("Total Pending Reservations: {}", totalPendingReservations);
 
         return new ReservationStatisticsResponseDto(totalReservations, totalPendingReservations);
+    }
+
+    public ReservationResponseDto notifyGuideAboutLatestReservation(Long guideId) {
+        Optional<Reservation> lastReservation = reservationRepository.findFirstByGuideIdOrderByReservationDateDesc(guideId);
+
+        if (lastReservation.isPresent()) {
+            Reservation reservation = lastReservation.get();
+            return reservationMapper.toResponseDto(reservation);
+        } else {
+            throw new RuntimeException("No reservations found for guide " + guideId);
+        }
     }
 }

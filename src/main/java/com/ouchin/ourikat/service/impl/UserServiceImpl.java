@@ -105,4 +105,16 @@ public class UserServiceImpl implements UserService {
                 .map(guideMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
+
+
+
+    @Override
+    public GuideResponseDto getGuideById(Long guideId) {
+        Guide guide = guideRepository.findById(guideId)
+                .orElseThrow(() -> new ResourceNotFoundException("Guide not found with ID: " + guideId));
+
+        return guideMapper.toResponseDto(guide);
+    }
+
+
 }

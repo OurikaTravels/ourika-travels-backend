@@ -68,4 +68,11 @@ public class ReservationController {
     }
 
 
+    @GetMapping("/notify-guide/{guideId}")
+    public ResponseEntity<ReservationResponseDto> notifyGuideAboutLatestReservation(@PathVariable Long guideId) {
+        ReservationResponseDto response = reservationService.notifyGuideAboutLatestReservation(guideId);
+        return ResponseEntity.ok(response);
+    }
+
+
 }

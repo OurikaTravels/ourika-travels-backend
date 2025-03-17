@@ -17,4 +17,6 @@ public interface UserService {
     List<TouristResponseDto> getAllTourists();
     List<GuideResponseDto> getAllGuidesOrderByReservationAssignmentDate();
     List<GuideResponseDto> getAllGuides();
+
+    GuideResponseDto getGuideById(Long guideId);
 }

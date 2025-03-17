@@ -16,5 +16,6 @@ public interface ReservationService {
     ReservationResponseDto cancelReservationByAdmin(Long reservationId);
     long getTotalReservations();
     ReservationStatisticsResponseDto getReservationStatistics();
+    ReservationResponseDto notifyGuideAboutLatestReservation(Long guideId);
 
 }
