@@ -75,4 +75,11 @@ public class ReservationController {
     }
 
 
+    @GetMapping("/tourist/{touristId}")
+    public ResponseEntity<List<ReservationResponseDto>> getReservationsByTouristId(@PathVariable Long touristId) {
+        List<ReservationResponseDto> reservations = reservationService.getAllByTouristId(touristId);
+        return ResponseEntity.ok(reservations);
+    }
+
+
 }

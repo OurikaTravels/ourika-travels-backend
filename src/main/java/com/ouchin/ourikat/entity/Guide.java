@@ -12,7 +12,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "guides")
-@DiscriminatorValue("GUIDE")
 public class Guide extends User {
 
     @Min(value = 1960, message = "Birth year must be after 1900")
@@ -24,7 +23,7 @@ public class Guide extends User {
     private String language;
 
     @Min(value = 0, message = "Experience cannot be negative")
-    @Max(value = 100, message = "Experience cannot exceed 100 years")
+    @Max(value = 31, message = "Experience cannot exceed 30 years")
     private Integer experience;
 
     @NotBlank(message = "Phone number is required")
@@ -39,7 +38,7 @@ public class Guide extends User {
     @Pattern(regexp = "^[A-Z0-9]{5,20}$", message = "License number must be 5-20 alphanumeric characters (uppercase)")
     private String licenseNumber;
 
-    @Column(nullable = false, columnDefinition = "boolean default false")
+    @Column(nullable = false)
     private Boolean isValidateGuide = false;
 
     @Column(columnDefinition = "TEXT")

@@ -12,5 +12,4 @@ public interface ActivityService {
     List<ActivityResponse> getActivitiesByTrekId(Long trekId);
     ActivityResponse updateActivity(Long id, ActivityRequest activityRequest);
     void deleteActivity(Long id);
-    Activity mapToEntity(ActivityRequest activityRequest);
 }

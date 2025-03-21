@@ -19,4 +19,5 @@ public interface UserService {
     List<GuideResponseDto> getAllGuides();
 
     GuideResponseDto getGuideById(Long guideId);
+    TouristResponseDto getTouristById(Long touristId);
 }

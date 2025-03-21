@@ -17,5 +17,6 @@ public interface ReservationService {
     long getTotalReservations();
     ReservationStatisticsResponseDto getReservationStatistics();
     ReservationResponseDto notifyGuideAboutLatestReservation(Long guideId);
+    List<ReservationResponseDto> getAllByTouristId(Long touristId);
 
 }

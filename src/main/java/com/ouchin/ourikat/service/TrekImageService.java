@@ -15,6 +15,3 @@ public interface TrekImageService {
 
 }
 
-
-
-//TODO : insert multi images to trek with validation .                                                                                                                                                                                                                          

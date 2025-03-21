@@ -97,25 +97,4 @@ public class Trek {
         service.getTreks().remove(this);
     }
 
-    public void addActivity(Activity activity) {
-        activities.add(activity);
-        activity.setTrek(this);
-    }
-
-    public void removeActivity(Activity activity) {
-        activities.remove(activity);
-        activity.setTrek(null);
-    }
-
-
-
-    public void addImage(TrekImage image) {
-        images.add(image);
-        image.setTrek(this);
-    }
-
-    public void removeImage(TrekImage image) {
-        images.remove(image);
-        image.setTrek(null);
-    }
 }

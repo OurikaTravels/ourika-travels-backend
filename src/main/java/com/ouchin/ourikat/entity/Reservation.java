@@ -36,6 +36,12 @@ public class Reservation {
     private LocalDateTime startDate;
 
     @Column(nullable = false)
+    private int adultCount;
+
+    @Column(nullable = false)
+    private int childCount;
+
+    @Column(nullable = false)
     private LocalDateTime endDate;
 
     @Column(nullable = false)

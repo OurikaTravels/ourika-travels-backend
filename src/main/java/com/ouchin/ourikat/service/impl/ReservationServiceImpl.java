@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +47,8 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setTrek(trek);
         reservation.setReservationDate(LocalDateTime.now());
         reservation.setStartDate(request.getStartDate());
+        reservation.setChildCount(request.getChildCount());
+        reservation.setAdultCount(request.getAdultCount());
         reservation.setEndDate(request.getEndDate());
         reservation.setTotalPrice(trek.getPrice());
         reservation.setStatus(ReservationStatus.PENDING);
@@ -67,7 +70,6 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
 
-        // Send email to tourist
         emailService.sendReservationCancellationEmail(reservation.getTourist().getEmail(), reservation);
     }
 
@@ -103,10 +105,9 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
 
-        reservation.setStatus(ReservationStatus.APPROVED); // Set status to APPROVED
+        reservation.setStatus(ReservationStatus.APPROVED);
         Reservation updatedReservation = reservationRepository.save(reservation);
 
-        // Send email to tourist
         emailService.sendReservationApprovalEmail(reservation.getTourist().getEmail(), updatedReservation);
 
         return reservationMapper.toResponseDto(updatedReservation);
@@ -121,7 +122,6 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setStatus(ReservationStatus.CANCELLED);
         Reservation updatedReservation = reservationRepository.save(reservation);
 
-        // Send email to tourist
         emailService.sendReservationCancellationEmail(reservation.getTourist().getEmail(), updatedReservation);
 
         return reservationMapper.toResponseDto(updatedReservation);
@@ -153,5 +153,18 @@ public class ReservationServiceImpl implements ReservationService {
         } else {
             throw new RuntimeException("No reservations found for guide " + guideId);
         }
+    }
+
+    @Override
+    public List<ReservationResponseDto> getAllByTouristId(Long touristId) {
+        List<Reservation> reservations = reservationRepository.getByTouristId(touristId);
+
+        if (reservations.isEmpty()) {
+            throw new ResourceNotFoundException("No reservations found for tourist ID: " + touristId);
+        }
+
+        return reservations.stream()
+                .map(reservationMapper::toResponseDto)
+                .collect(Collectors.toList());
     }
 }

@@ -11,8 +11,9 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring")
 public interface TouristMapper {
 
-    @Mapping(target = "role", constant = "TOURIST") // Use TOURIST instead of ROLE_TOURIST
+    @Mapping(target = "role", constant = "TOURIST")
     Tourist toEntity(TouristRegistrationRequestDto requestDto);
 
+    @Mapping(source = "verified", target = "verified")
     TouristResponseDto toResponseDto(Tourist tourist);
 }

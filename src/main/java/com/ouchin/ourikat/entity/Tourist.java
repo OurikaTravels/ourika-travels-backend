@@ -10,8 +10,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "tourists")
-@DiscriminatorValue("TOURIST")
 public class Tourist extends User {
-    private String nationality;
 
+    @Column
+    private String nationality;
 }

@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -21,10 +22,9 @@ public class FileService {
     private final String uploadDir;
 
     public String saveFile(MultipartFile file) throws IOException {
-        String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
+        String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         String fileExtension = getFileExtension(originalFileName);
 
-        // Generate a unique filename
         String fileName = UUID.randomUUID().toString() + fileExtension;
         Path targetLocation = Paths.get(uploadDir).resolve(fileName);
 

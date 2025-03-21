@@ -66,7 +66,6 @@ public class UserController {
     @GetMapping("/guides/{guideId}")
     public ResponseEntity<ApiResponse<GuideResponseDto>> getGuideById(@PathVariable Long guideId) {
         try {
-            // Fetch the guide by ID
             GuideResponseDto guide = userService.getGuideById(guideId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Guide fetched successfully", guide));
         } catch (ResourceNotFoundException e) {
@@ -77,4 +76,13 @@ public class UserController {
                     .body(new ApiResponse<>(false, "Failed to fetch guide: " + e.getMessage(), null));
         }
     }
+
+    @GetMapping("/tourists/{touristId}")
+    public ResponseEntity<TouristResponseDto> getTouristById(@PathVariable Long touristId) {
+        TouristResponseDto touristResponseDto = userService.getTouristById(touristId);
+        return ResponseEntity.ok(touristResponseDto);
+    }
+
+
+
 }

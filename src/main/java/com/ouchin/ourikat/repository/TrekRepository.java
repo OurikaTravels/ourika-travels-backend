@@ -12,11 +12,5 @@ import java.util.Optional;
 @Repository
 public interface TrekRepository extends JpaRepository<Trek, Long> {
     List<Trek> findByCategoryId(Long categoryId);
-
-    List<Trek> findByPriceLessThanEqual(Double maxPrice);
-
-    @Query("SELECT t FROM Trek t JOIN t.services s WHERE s.id = :serviceId")
-    List<Trek> findByServiceId(@Param("serviceId") Long serviceId);
-
-    boolean existsByTitleIgnoreCase(String title);
+    List<Trek> findByTitleContainingIgnoreCase(String title);
 }

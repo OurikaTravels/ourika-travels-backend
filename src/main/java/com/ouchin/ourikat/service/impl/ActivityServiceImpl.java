@@ -85,8 +85,4 @@ public class ActivityServiceImpl implements ActivityService {
         activityRepository.deleteById(id);
     }
 
-    @Override
-    public Activity mapToEntity(ActivityRequest activityRequest) {
-        return activityMapper.toEntity(activityRequest);
-    }
 }

@@ -1,6 +1,7 @@
 package com.ouchin.ourikat.dto.response;
 
 import com.ouchin.ourikat.enums.ReservationStatus;
+import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,8 @@ public class ReservationResponseDto {
     private GuideResponseDto guide;
     private LocalDateTime reservationDate;
     private LocalDateTime startDate;
+    private int adultCount;
+    private int childCount;
     private LocalDateTime endDate;
     private Double totalPrice;
     private ReservationStatus status;

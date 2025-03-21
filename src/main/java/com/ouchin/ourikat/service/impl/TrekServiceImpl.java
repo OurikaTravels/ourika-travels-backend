@@ -3,10 +3,8 @@ package com.ouchin.ourikat.service.impl;
 
 import com.ouchin.ourikat.dto.request.TrekRequest;
 import com.ouchin.ourikat.dto.response.TrekResponse;
-import com.ouchin.ourikat.entity.Category;
-import com.ouchin.ourikat.entity.Highlight;
-import com.ouchin.ourikat.entity.ServiceEntity;
-import com.ouchin.ourikat.entity.Trek;
+import com.ouchin.ourikat.dto.response.TrekSearchResponse;
+import com.ouchin.ourikat.entity.*;
 import com.ouchin.ourikat.exception.ResourceNotFoundException;
 import com.ouchin.ourikat.mapper.TrekMapper;
 import com.ouchin.ourikat.repository.CategoryRepository;
@@ -74,15 +72,12 @@ public class TrekServiceImpl implements TrekService {
         Trek trek = trekRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Trek not found with id: " + id));
 
-
         if (trekRequest.getCategoryId() == null) {
             throw new IllegalArgumentException("Category ID is required.");
         }
 
-
         Category category = categoryRepository.findById(trekRequest.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + trekRequest.getCategoryId()));
-
 
         trek.setTitle(trekRequest.getTitle());
         trek.setDescription(trekRequest.getDescription());
@@ -163,5 +158,46 @@ public class TrekServiceImpl implements TrekService {
         trekRepository.save(trek);
 
         return trekMapper.toResponse(trek);
+    }
+
+    @Override
+    public List<TrekResponse> getByCategoryId(Long categoryId) {
+        List<Trek> treks = trekRepository.findByCategoryId(categoryId);
+
+        if (treks.isEmpty()) {
+            throw new ResourceNotFoundException("No treks found for category ID: " + categoryId);
+        }
+
+        return treks.stream()
+                .map(trekMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TrekSearchResponse> searchTreksByTitle(String title) {
+        List<Trek> treks = trekRepository.findByTitleContainingIgnoreCase(title);
+
+        if (treks.isEmpty()) {
+            throw new ResourceNotFoundException("No treks found with title containing: " + title);
+        }
+
+        return treks.stream()
+                .map(trek -> {
+
+                    String primaryImageUrl = trek.getImages().stream()
+                            .filter(TrekImage::isPrimary)
+                            .findFirst()
+                            .map(image -> "http://localhost:8080/api/images/" + image.getPath())
+                            .orElse(null);
+
+
+                    return new TrekSearchResponse(
+                            trek.getId(),
+                            trek.getTitle(),
+                            trek.getDescription(),
+                            primaryImageUrl
+                    );
+                })
+                .collect(Collectors.toList());
     }
 }

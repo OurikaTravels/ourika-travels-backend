@@ -116,5 +116,13 @@ public class UserServiceImpl implements UserService {
         return guideMapper.toResponseDto(guide);
     }
 
+    @Override
+    public TouristResponseDto getTouristById(Long touristId) {
+        Tourist tourist = touristRepository.findById(touristId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tourist Not found with ID: " + touristId));
+
+        return touristMapper.toResponseDto(tourist);
+    }
+
 
 }

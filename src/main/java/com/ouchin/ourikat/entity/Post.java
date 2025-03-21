@@ -42,7 +42,8 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PostStatus status;
+    @Builder.Default
+    private PostStatus status = PostStatus.ACCEPTED;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "guide_id", nullable = false)
@@ -59,9 +60,6 @@ public class Post {
         createdAt = LocalDateTime.now();
         if (isActive == null) {
             isActive = true;
-        }
-        if (status == null) {
-            status = PostStatus.PENDING;
         }
     }
 }

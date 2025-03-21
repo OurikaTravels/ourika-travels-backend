@@ -1,10 +1,9 @@
 package com.ouchin.ourikat.service;
 
 
-
 import com.ouchin.ourikat.dto.request.TrekRequest;
 import com.ouchin.ourikat.dto.response.TrekResponse;
-import org.springframework.transaction.annotation.Transactional;
+import com.ouchin.ourikat.dto.response.TrekSearchResponse;
 
 import java.util.List;
 
@@ -21,4 +20,8 @@ public interface TrekService {
 
     TrekResponse addServiceToTrek(Long trekId, Long serviceId);
     TrekResponse removeServiceFromTrek(Long trekId, Long serviceId);
+
+
+    List<TrekResponse> getByCategoryId(Long categoryId);
+    List<TrekSearchResponse> searchTreksByTitle(String title);
 }

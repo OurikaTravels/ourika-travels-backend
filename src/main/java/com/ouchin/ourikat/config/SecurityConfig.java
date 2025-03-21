@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/uploads/images/**").permitAll()
 
                         //category
                         .requestMatchers(HttpMethod.GET, "/categories").permitAll()
@@ -91,6 +92,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/posts/{postId}").hasRole("GUIDE")
                         .requestMatchers(HttpMethod.PUT, "/posts/{postId}/images").hasRole("GUIDE")
                         .requestMatchers(HttpMethod.DELETE, "/posts/{postId}").hasRole("GUIDE")
+                        .requestMatchers(HttpMethod.GET, "/posts").permitAll()
 
 
                         // Add these to your security configuration
@@ -143,6 +145,17 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/users/guides/{guideId}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/reservation/notify-guide/{guideId}").hasRole("GUIDE")
+
+                        .requestMatchers(HttpMethod.GET, "/users/tourists/{touristId}").hasRole("TOURIST")
+
+                        .requestMatchers(HttpMethod.GET, "/posts").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/treks/category/{categoryId}").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/treks/search").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/reservations/tourist/{touristId}").hasRole("TOURIST")
+
                         .anyRequest().authenticated()
 
 

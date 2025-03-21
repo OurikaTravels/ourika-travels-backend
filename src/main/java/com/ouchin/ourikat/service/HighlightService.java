@@ -6,6 +6,7 @@ import com.ouchin.ourikat.dto.response.TrekResponse;
 import java.util.List;
 
 public interface HighlightService {
+
     HighlightResponse createHighlight(HighlightRequest highlightRequest);
     HighlightResponse getHighlightById(Long id);
     List<HighlightResponse> getAllHighlights();

@@ -4,9 +4,9 @@ package com.ouchin.ourikat.controller;
 import com.ouchin.ourikat.dto.request.TrekRequest;
 import com.ouchin.ourikat.dto.response.ApiResponse;
 import com.ouchin.ourikat.dto.response.TrekResponse;
+import com.ouchin.ourikat.dto.response.TrekSearchResponse;
 import com.ouchin.ourikat.service.TrekService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +17,12 @@ import java.util.List;
 @RequestMapping("/treks")
 public class TrekController {
 
-    @Autowired
-    private TrekService trekService;
+
+    private final TrekService trekService;
+
+    public TrekController(TrekService trekService) {
+        this.trekService = trekService;
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<TrekResponse>> createTrek(@Valid @RequestBody TrekRequest trekRequest) {
@@ -65,6 +69,20 @@ public class TrekController {
             @PathVariable Long trekId,
             @PathVariable Long serviceId) {
         return ResponseEntity.ok(trekService.removeServiceFromTrek(trekId, serviceId));
+    }
+
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<TrekResponse>> getTreksByCategoryId(@PathVariable Long categoryId) {
+        List<TrekResponse> treks = trekService.getByCategoryId(categoryId);
+        return ResponseEntity.ok(treks);
+    }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<List<TrekSearchResponse>> searchTreksByTitle(@RequestParam String title) {
+        List<TrekSearchResponse> treks = trekService.searchTreksByTitle(title);
+        return ResponseEntity.ok(treks);
     }
 
 

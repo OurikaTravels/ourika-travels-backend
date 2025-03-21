@@ -27,4 +27,8 @@ public class TrekImage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trek_id", nullable = false)
     private Trek trek;
+
+    public boolean isPrimary() {
+        return isPrimary != null && isPrimary;
+    }
 }

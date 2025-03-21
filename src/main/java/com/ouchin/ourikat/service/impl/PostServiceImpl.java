@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -79,7 +80,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponseDto getPostById(Long postId) {
+    public PostResponseDto getPostById(Long postId){
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
 
@@ -87,16 +88,8 @@ public class PostServiceImpl implements PostService {
         int commentCount = commentService.getPostCommentCount(postId);
         List<CommentResponseDto> comments = commentService.getPostComments(postId);
 
-        // Check if current user has liked the post
-        boolean isLiked = false;
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() &&
-                !authentication.getPrincipal().equals("anonymousUser")) {
-            User currentUser = (User) authentication.getPrincipal();
-            isLiked = likeService.isPostLikedByUser(postId, currentUser.getId());
-        }
 
-        return postMapper.toResponseDto(post, likeCount, commentCount, comments, isLiked);
+        return postMapper.toResponseDto(post, likeCount, commentCount, comments);
     }
 
     @Override
@@ -151,5 +144,20 @@ public class PostServiceImpl implements PostService {
         }
 
         postRepository.delete(post);
+    }
+
+    @Override
+    public List<PostResponseDto> getAll() {
+        List<Post> posts = postRepository.findAll();
+
+        return posts.stream().map(post -> {
+            int likeCount = likeService.getPostLikeCount(post.getId());
+
+            int commentCount = commentService.getPostCommentCount(post.getId());
+
+            List<CommentResponseDto> comments = commentService.getPostComments(post.getId());
+
+            return postMapper.toResponseDto(post, likeCount, commentCount, comments);
+        }).collect(Collectors.toList());
     }
 }

@@ -14,4 +14,5 @@ public class TouristResponseDto {
     private String email;
     private Role role;
     private String nationality;
+    private Boolean verified;
 }

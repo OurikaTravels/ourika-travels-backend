@@ -22,6 +22,7 @@ public class PostResponseDto {
     private LocalDateTime createdAt;
     private Boolean isActive;
     private PostStatus status;
+    private GuideResponseDto guide;
     private Long guideId;
     private int likeCount;
     private int commentCount;
