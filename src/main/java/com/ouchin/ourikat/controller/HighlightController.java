@@ -3,7 +3,6 @@ package com.ouchin.ourikat.controller;
 import com.ouchin.ourikat.dto.request.HighlightRequest;
 import com.ouchin.ourikat.dto.response.ApiResponse;
 import com.ouchin.ourikat.dto.response.HighlightResponse;
-import com.ouchin.ourikat.exception.ResourceNotFoundException;
 import com.ouchin.ourikat.service.HighlightService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -51,16 +50,7 @@ public class HighlightController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteHighlight(@PathVariable Long id) {
-        try {
-            highlightService.deleteHighlight(id);
-            return ResponseEntity.ok(new ApiResponse<>(true, "Highlight deleted successfully", null));
-        } catch (ResourceNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse<>(false, ex.getMessage(), null));
-        } catch (IllegalStateException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>(false, ex.getMessage(), null));
-        }
+        highlightService.deleteHighlight(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Highlight deleted successfully", null));
     }
 }
-

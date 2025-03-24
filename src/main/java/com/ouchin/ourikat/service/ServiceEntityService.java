@@ -13,5 +13,4 @@ public interface ServiceEntityService {
     ServiceEntityResponse updateService(Long id, ServiceEntityRequest request);
     void deleteService(Long id);
     List<ServiceEntityResponse> searchServicesByName(String name);
-    Set<ServiceEntityResponse> getServicesByIds(Set<Long> ids);
 }

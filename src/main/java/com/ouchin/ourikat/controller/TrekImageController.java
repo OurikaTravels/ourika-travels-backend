@@ -1,7 +1,6 @@
 package com.ouchin.ourikat.controller;
 
-import com.ouchin.ourikat.dto.request.TrekImageResponse;
-import com.ouchin.ourikat.dto.request.UpdatePrimaryRequest;
+import com.ouchin.ourikat.dto.response.TrekImageResponse;
 import com.ouchin.ourikat.service.FileService;
 import com.ouchin.ourikat.service.TrekImageService;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @RestController
 @RequestMapping("/treks/{trekId}/images")
 @RequiredArgsConstructor
@@ -27,7 +23,7 @@ public class TrekImageController {
 
     private final TrekImageService trekImageService;
     private final FileService fileService;
-    private static final Logger logger = LoggerFactory.getLogger(TrekImageController.class);
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TrekImageResponse> addImage(
@@ -76,7 +72,6 @@ public class TrekImageController {
                 .body(resource);
     }
 
-
     @PostMapping("/bulk")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<TrekImageResponse>> addMultipleImages(
@@ -84,16 +79,7 @@ public class TrekImageController {
             @RequestParam("file") MultipartFile[] files,
             @RequestParam(value = "primaryIndex", defaultValue = "0") Integer primaryIndex) {
 
-        logger.debug("Received request to add multiple images for trekId: {}", trekId);
-        logger.debug("Number of files received: {}", files.length);
-        logger.debug("Primary index: {}", primaryIndex);
-
-        for (int i = 0; i < files.length; i++) {
-            logger.debug("File {}: name={}, size={}", i, files[i].getOriginalFilename(), files[i].getSize());
-        }
-
         if (files.length < 4) {
-            logger.error("At least 4 files are required. Received: {}", files.length);
             return ResponseEntity.badRequest().body(null);
         }
 
@@ -101,10 +87,8 @@ public class TrekImageController {
 
         for (int i = 0; i < files.length; i++) {
             boolean isPrimary = (i == primaryIndex);
-            logger.debug("Processing file {}: isPrimary={}", i, isPrimary);
 
             if (files[i].isEmpty()) {
-                logger.error("File {} is empty", i);
                 return ResponseEntity.badRequest().body(null);
             }
 

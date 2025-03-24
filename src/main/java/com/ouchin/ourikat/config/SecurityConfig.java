@@ -156,6 +156,13 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/reservations/tourist/{touristId}").hasRole("TOURIST")
 
+                        .requestMatchers(HttpMethod.GET, "/wishlists/count/{touristId}").hasRole("TOURIST")
+                        .requestMatchers(HttpMethod.GET, "/wishlists/trek-ids/{touristId}").hasRole("TOURIST")
+
+                        .requestMatchers(HttpMethod.GET, "/reservations/count/{touristId}").hasRole("TOURIST")
+
+                        .requestMatchers(HttpMethod.GET, "/posts/liked-posts/{touristId}").authenticated()
+
                         .anyRequest().authenticated()
 
 

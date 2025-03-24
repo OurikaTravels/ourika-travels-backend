@@ -41,4 +41,16 @@ public class WishlistController {
         List<WishlistResponseDto> wishlist = wishlistService.getWishlistByTouristId(touristId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Wishlist retrieved successfully", wishlist));
     }
+
+
+    @GetMapping("/count/{touristId}")
+    public int getWishlistCount(@PathVariable Long touristId) {
+        return wishlistService.getWishlistCountByTouristId(touristId);
+    }
+
+    @GetMapping("/trek-ids/{touristId}")
+    public List<Long> getTrekIdsInWishlist(@PathVariable Long touristId) {
+        return wishlistService.getTrekIdsInWishlistByTouristId(touristId);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.ouchin.ourikat.entity;
 
 
+import com.ouchin.ourikat.utils.DurationUtil;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -95,6 +96,10 @@ public class Trek {
     public void removeService(ServiceEntity service) {
         this.services.remove(service);
         service.getTreks().remove(this);
+    }
+
+    public String getFormattedDuration() {
+        return DurationUtil.formatDuration(this.duration);
     }
 
 }

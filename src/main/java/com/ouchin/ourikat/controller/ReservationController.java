@@ -82,4 +82,10 @@ public class ReservationController {
     }
 
 
+    @GetMapping("/count/{touristId}")
+    public int getReservationCount(@PathVariable Long touristId) {
+        return reservationService.getReservationCountByTouristId(touristId);
+    }
+
+
 }

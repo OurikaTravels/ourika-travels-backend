@@ -32,7 +32,6 @@ public class ServiceEntityServiceImpl implements ServiceEntityService {
     @Override
     @Transactional
     public ServiceEntityResponse createService(ServiceEntityRequest request) {
-        // Check if service with same name already exists
         if (serviceRepository.existsByNameIgnoreCase(request.getName())) {
             throw new DataIntegrityViolationException("Service with name '" + request.getName() + "' already exists");
         }
@@ -64,7 +63,6 @@ public class ServiceEntityServiceImpl implements ServiceEntityService {
         ServiceEntity service = serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + id));
 
-        // Check if updated name already exists (but not for this service)
         if (!service.getName().equalsIgnoreCase(request.getName())
                 && serviceRepository.existsByNameIgnoreCase(request.getName())) {
             throw new DataIntegrityViolationException("Service with name '" + request.getName() + "' already exists");
@@ -92,11 +90,4 @@ public class ServiceEntityServiceImpl implements ServiceEntityService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    @Transactional
-    public Set<ServiceEntityResponse> getServicesByIds(Set<Long> ids) {
-        return serviceRepository.findByIdIn(ids).stream()
-                .map(serviceMapper::toResponse)
-                .collect(Collectors.toSet());
-    }
 }

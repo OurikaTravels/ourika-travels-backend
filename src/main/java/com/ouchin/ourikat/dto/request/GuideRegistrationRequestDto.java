@@ -1,6 +1,5 @@
 package com.ouchin.ourikat.dto.request;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -44,7 +43,4 @@ public class GuideRegistrationRequestDto {
     @NotBlank(message = "License number is required")
     @Pattern(regexp = "^[A-Z0-9]{5,20}$", message = "License number must be 5-20 alphanumeric characters (uppercase)")
     private String licenseNumber;
-
-    @Column(columnDefinition = "TEXT")
-    private String aboutYou;
 }

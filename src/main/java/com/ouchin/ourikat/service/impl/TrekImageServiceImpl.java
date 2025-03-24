@@ -1,6 +1,6 @@
 package com.ouchin.ourikat.service.impl;
 
-import com.ouchin.ourikat.dto.request.TrekImageResponse;
+import com.ouchin.ourikat.dto.response.TrekImageResponse;
 import com.ouchin.ourikat.entity.Trek;
 import com.ouchin.ourikat.entity.TrekImage;
 import com.ouchin.ourikat.exception.ResourceNotFoundException;
@@ -11,6 +11,7 @@ import com.ouchin.ourikat.service.FileService;
 import com.ouchin.ourikat.service.TrekImageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TrekImageServiceImpl implements TrekImageService {
@@ -27,27 +29,22 @@ public class TrekImageServiceImpl implements TrekImageService {
     private final TrekImageMapper trekImageMapper;
     private final FileService fileService;
 
-
-
     @Override
     @Transactional
     public TrekImageResponse addImage(Long trekId, MultipartFile file, Boolean isPrimary) {
+        log.debug("Adding image to trek with ID: {}", trekId);
+
         Trek trek = trekRepository.findById(trekId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trek not found with id: " + trekId));
 
         try {
             String fileName = fileService.saveFile(file);
 
-            // If this is set as primary, unset any existing primary image
             if (isPrimary) {
-                trek.getImages().stream()
-                        .filter(TrekImage::getIsPrimary)
-                        .forEach(img -> img.setIsPrimary(false));
+                trekImageRepository.unsetAllPrimaryImagesForTrek(trekId);
             }
 
-            // If no images exist yet or no primary is set, make this the primary
-            boolean shouldBePrimary = isPrimary || trek.getImages().isEmpty() ||
-                    trek.getImages().stream().noneMatch(TrekImage::getIsPrimary);
+            boolean shouldBePrimary = isPrimary || trekImageRepository.countByTrekId(trekId) == 0;
 
             TrekImage trekImage = new TrekImage();
             trekImage.setPath(fileName);
@@ -55,14 +52,19 @@ public class TrekImageServiceImpl implements TrekImageService {
             trekImage.setTrek(trek);
 
             trekImage = trekImageRepository.save(trekImage);
+            log.info("Image added successfully with ID: {}", trekImage.getId());
+
             return trekImageMapper.toResponse(trekImage);
         } catch (IOException e) {
+            log.error("Failed to store file", e);
             throw new RuntimeException("Failed to store file", e);
         }
     }
 
     @Override
     public List<TrekImageResponse> getImagesByTrekId(Long trekId) {
+        log.debug("Fetching images for trek with ID: {}", trekId);
+
         List<TrekImage> images = trekImageRepository.findByTrekId(trekId);
         return trekImageMapper.toResponseList(images);
     }
@@ -70,17 +72,17 @@ public class TrekImageServiceImpl implements TrekImageService {
     @Override
     @Transactional
     public void deleteImage(Long imageId) throws BadRequestException {
+        log.debug("Deleting image with ID: {}", imageId);
+
         TrekImage image = trekImageRepository.findById(imageId)
                 .orElseThrow(() -> new ResourceNotFoundException("Image not found with id: " + imageId));
 
         Long trekId = image.getTrek().getId();
 
-
         long imageCount = trekImageRepository.countByTrekId(trekId);
         if (imageCount <= 4) {
             throw new BadRequestException("Trek must have at least 4 images. Cannot delete.");
         }
-
 
         if (image.getIsPrimary()) {
             trekImageRepository.findFirstByTrekIdAndIdNot(trekId, imageId)
@@ -90,52 +92,37 @@ public class TrekImageServiceImpl implements TrekImageService {
                     });
         }
 
-
         try {
             fileService.deleteFile(image.getPath());
         } catch (IOException e) {
-
-            System.err.println("Failed to delete file: " + image.getPath());
+            log.error("Failed to delete file: {}", image.getPath(), e);
         }
 
-
         trekImageRepository.delete(image);
+        log.info("Image deleted successfully with ID: {}", imageId);
     }
 
     @Override
     @Transactional
     public TrekImageResponse togglePrimaryStatus(Long imageId) {
+        log.debug("Toggling primary status for image with ID: {}", imageId);
 
         TrekImage image = trekImageRepository.findById(imageId)
                 .orElseThrow(() -> new ResourceNotFoundException("Image not found with id: " + imageId));
 
         Long trekId = image.getTrek().getId();
 
-
         boolean newPrimaryStatus = !image.getIsPrimary();
 
         if (newPrimaryStatus) {
-
             trekImageRepository.unsetAllPrimaryImagesForTrek(trekId);
         }
-
 
         image.setIsPrimary(newPrimaryStatus);
         image = trekImageRepository.save(image);
 
+        log.info("Primary status toggled successfully for image with ID: {}", imageId);
         return trekImageMapper.toResponse(image);
     }
 
-    @Override
-    public void validateTrekImages(Long trekId) throws BadRequestException {
-        long imageCount = trekImageRepository.countByTrekId(trekId);
-        if (imageCount < 4) {
-            throw new BadRequestException("Trek must have at least 4 images");
-        }
-
-        boolean hasPrimary = trekImageRepository.existsByTrekIdAndIsPrimaryTrue(trekId);
-        if (!hasPrimary) {
-            throw new BadRequestException("Trek must have a primary image");
-        }
-    }
 }

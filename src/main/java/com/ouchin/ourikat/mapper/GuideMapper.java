@@ -14,5 +14,6 @@ public interface GuideMapper {
     //@Mapping(target = "posts", source = "posts")
     @Mapping(target = "aboutYou", source = "aboutYou")
     @Mapping(target = "profileImage", source = "profileImage")
+    @Mapping(target = "verified", source = "verified")
     GuideResponseDto toResponseDto(Guide guide);
 }

@@ -25,23 +25,9 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponseDto>> login(@Valid @RequestBody LoginRequestDto request) {
-        try {
-            log.info("Login attempt for user: {}", request.getEmail());
-            LoginResponseDto response = authenticationService.login(request);
-            return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", response));
-        } catch (AuthenticationFailedException e) {
-            log.error("Login failed: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponse<>(false, "Invalid email or password", null));
-        } catch (GuideNotValidatedException e) {
-            log.error("Login failed: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new ApiResponse<>(false, e.getMessage(), null));
-        } catch (Exception e) {
-            log.error("Login failed: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "An error occurred during login", null));
-        }
+        log.info("Login attempt for user: {}", request.getEmail());
+        LoginResponseDto response = authenticationService.login(request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", response));
     }
 
     @PostMapping("/register/tourist")
@@ -65,19 +51,10 @@ public class AuthenticationController {
     @PostMapping("/register/guide")
     public ResponseEntity<ApiResponse<GuideResponseDto>> registerGuide(
             @Valid @RequestBody GuideRegistrationRequestDto request) {
-        try {
-            log.info("Guide registration attempt for: {}", request.getEmail());
-            GuideResponseDto guide = authenticationService.registerGuide(request);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse<>(true, "Guide registered successfully", guide));
-        } catch (Exception e) {
-            log.error("Guide registration failed: {}", e.getMessage());
-            String errorMessage = e.getMessage().contains("Email already in use")
-                    ? "Email already in use"
-                    : "Registration failed. Please try again.";
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>(false, errorMessage, null));
-        }
+        log.info("Guide registration attempt for: {}", request.getEmail());
+        GuideResponseDto guide = authenticationService.registerGuide(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>(true, "Guide registered successfully", guide));
     }
 
     @GetMapping("/verify")
@@ -138,7 +115,6 @@ public class AuthenticationController {
             log.info("Uploading profile image for guide with ID: {}", guideId);
             String fileName = fileService.saveFile(file);
 
-            // Update the guide's profile image in the database
             authenticationService.updateProfileImage(guideId, fileName);
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Profile image uploaded successfully", fileName));

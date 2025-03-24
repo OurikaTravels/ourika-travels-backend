@@ -11,6 +11,7 @@ import com.ouchin.ourikat.exception.ResourceNotFoundException;
 import com.ouchin.ourikat.mapper.GuideMapper;
 import com.ouchin.ourikat.mapper.TouristMapper;
 import com.ouchin.ourikat.repository.GuideRepository;
+import com.ouchin.ourikat.repository.ReservationRepository;
 import com.ouchin.ourikat.repository.TouristRepository;
 import com.ouchin.ourikat.repository.UserRepository;
 import com.ouchin.ourikat.service.UserService;
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final TouristRepository touristRepository;
     private final GuideRepository guideRepository;
     private final UserRepository userRepository;
+    private final ReservationRepository reservationRepository;
     private final TouristMapper touristMapper;
     private final GuideMapper guideMapper;
 
@@ -70,6 +72,8 @@ public class UserServiceImpl implements UserService {
         long verifiedUsers = userRepository.countByVerified(true);
         long validatedGuides = guideRepository.countByIsValidateGuide(true);
         long nonValidatedGuides = guideRepository.countByIsValidateGuide(false);
+        long reservationsCount = reservationRepository.count();
+        long reservationRevenue = reservationRepository.getTotalRevenue();
 
         return new AdminStatisticsResponseDto(
                 totalUsers,
@@ -77,7 +81,9 @@ public class UserServiceImpl implements UserService {
                 totalGuides,
                 verifiedUsers,
                 validatedGuides,
-                nonValidatedGuides
+                nonValidatedGuides,
+                reservationsCount,
+                reservationRevenue
         );
     }
 
@@ -105,8 +111,6 @@ public class UserServiceImpl implements UserService {
                 .map(guideMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
-
-
 
     @Override
     public GuideResponseDto getGuideById(Long guideId) {

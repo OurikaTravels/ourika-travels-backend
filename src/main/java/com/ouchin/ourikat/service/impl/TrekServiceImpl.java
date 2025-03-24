@@ -1,6 +1,5 @@
 package com.ouchin.ourikat.service.impl;
 
-
 import com.ouchin.ourikat.dto.request.TrekRequest;
 import com.ouchin.ourikat.dto.response.TrekResponse;
 import com.ouchin.ourikat.dto.response.TrekSearchResponse;
@@ -13,12 +12,16 @@ import com.ouchin.ourikat.repository.ServiceEntityRepository;
 import com.ouchin.ourikat.repository.TrekRepository;
 import com.ouchin.ourikat.service.TrekService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class TrekServiceImpl implements TrekService {
 
     private final TrekRepository trekRepository;
@@ -27,16 +30,11 @@ public class TrekServiceImpl implements TrekService {
     private final CategoryRepository categoryRepository;
     private final ServiceEntityRepository serviceEntityRepository;
 
-    public TrekServiceImpl(TrekRepository trekRepository, TrekMapper trekMapper, HighlightRepository highlightRepository, CategoryRepository categoryRepository, ServiceEntityRepository serviceEntityRepository) {
-        this.trekRepository = trekRepository;
-        this.trekMapper = trekMapper;
-        this.highlightRepository = highlightRepository;
-        this.categoryRepository = categoryRepository;
-        this.serviceEntityRepository = serviceEntityRepository;
-    }
-
     @Override
+    @Transactional
     public TrekResponse createTrek(TrekRequest trekRequest) {
+        log.debug("Creating trek with title: {}", trekRequest.getTitle());
+
         if (trekRequest.getCategoryId() == null) {
             throw new IllegalArgumentException("Category ID is required.");
         }
@@ -47,27 +45,35 @@ public class TrekServiceImpl implements TrekService {
         Trek trek = trekMapper.toEntity(trekRequest);
         trek.setCategory(category);
 
-        trek = trekRepository.save(trek);
+        Trek savedTrek = trekRepository.save(trek);
+        log.info("Trek created successfully with ID: {}", savedTrek.getId());
 
-        return trekMapper.toResponse(trek);
+        return trekMapper.toResponse(savedTrek);
     }
 
     @Override
     public TrekResponse getTrekById(Long id) {
+        log.debug("Fetching trek with ID: {}", id);
+
         Trek trek = trekRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Trek not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Trek not found with id: " + id));
+
         return trekMapper.toResponse(trek);
     }
 
     @Override
     public List<TrekResponse> getAllTreks() {
+        log.debug("Fetching all treks");
+
         return trekRepository.findAll().stream()
                 .map(trekMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public TrekResponse updateTrek(Long id, TrekRequest trekRequest) {
+        log.debug("Updating trek with ID: {}", id);
 
         Trek trek = trekRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Trek not found with id: " + id));
@@ -88,21 +94,30 @@ public class TrekServiceImpl implements TrekService {
         trek.setPrice(trekRequest.getPrice());
         trek.setCategory(category);
 
+        Trek updatedTrek = trekRepository.save(trek);
+        log.info("Trek updated successfully with ID: {}", updatedTrek.getId());
 
-        trek = trekRepository.save(trek);
-
-
-        return trekMapper.toResponse(trek);
+        return trekMapper.toResponse(updatedTrek);
     }
 
     @Override
+    @Transactional
     public void deleteTrek(Long id) {
+        log.debug("Deleting trek with ID: {}", id);
+
+        if (!trekRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Trek not found with id: " + id);
+        }
+
         trekRepository.deleteById(id);
+        log.info("Trek deleted successfully with ID: {}", id);
     }
 
     @Override
     @Transactional
     public TrekResponse addHighlightToTrek(Long trekId, Long highlightId) {
+        log.debug("Adding highlight with ID: {} to trek with ID: {}", highlightId, trekId);
+
         Trek trek = trekRepository.findById(trekId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trek not found with id: " + trekId));
 
@@ -111,6 +126,7 @@ public class TrekServiceImpl implements TrekService {
 
         trek.addHighlight(highlight);
         trekRepository.save(trek);
+        log.info("Highlight added successfully to trek with ID: {}", trekId);
 
         return trekMapper.toResponse(trek);
     }
@@ -118,6 +134,8 @@ public class TrekServiceImpl implements TrekService {
     @Override
     @Transactional
     public TrekResponse removeHighlightFromTrek(Long trekId, Long highlightId) {
+        log.debug("Removing highlight with ID: {} from trek with ID: {}", highlightId, trekId);
+
         Trek trek = trekRepository.findById(trekId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trek not found with id: " + trekId));
 
@@ -126,6 +144,7 @@ public class TrekServiceImpl implements TrekService {
 
         trek.removeHighlight(highlight);
         trekRepository.save(trek);
+        log.info("Highlight removed successfully from trek with ID: {}", trekId);
 
         return trekMapper.toResponse(trek);
     }
@@ -133,6 +152,8 @@ public class TrekServiceImpl implements TrekService {
     @Override
     @Transactional
     public TrekResponse addServiceToTrek(Long trekId, Long serviceId) {
+        log.debug("Adding service with ID: {} to trek with ID: {}", serviceId, trekId);
+
         Trek trek = trekRepository.findById(trekId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trek not found with id: " + trekId));
 
@@ -141,6 +162,7 @@ public class TrekServiceImpl implements TrekService {
 
         trek.addService(service);
         trekRepository.save(trek);
+        log.info("Service added successfully to trek with ID: {}", trekId);
 
         return trekMapper.toResponse(trek);
     }
@@ -148,6 +170,8 @@ public class TrekServiceImpl implements TrekService {
     @Override
     @Transactional
     public TrekResponse removeServiceFromTrek(Long trekId, Long serviceId) {
+        log.debug("Removing service with ID: {} from trek with ID: {}", serviceId, trekId);
+
         Trek trek = trekRepository.findById(trekId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trek not found with id: " + trekId));
 
@@ -156,12 +180,15 @@ public class TrekServiceImpl implements TrekService {
 
         trek.removeService(service);
         trekRepository.save(trek);
+        log.info("Service removed successfully from trek with ID: {}", trekId);
 
         return trekMapper.toResponse(trek);
     }
 
     @Override
     public List<TrekResponse> getByCategoryId(Long categoryId) {
+        log.debug("Fetching treks for category with ID: {}", categoryId);
+
         List<Trek> treks = trekRepository.findByCategoryId(categoryId);
 
         if (treks.isEmpty()) {
@@ -175,6 +202,8 @@ public class TrekServiceImpl implements TrekService {
 
     @Override
     public List<TrekSearchResponse> searchTreksByTitle(String title) {
+        log.debug("Searching treks by title: {}", title);
+
         List<Trek> treks = trekRepository.findByTitleContainingIgnoreCase(title);
 
         if (treks.isEmpty()) {
@@ -183,13 +212,11 @@ public class TrekServiceImpl implements TrekService {
 
         return treks.stream()
                 .map(trek -> {
-
                     String primaryImageUrl = trek.getImages().stream()
                             .filter(TrekImage::isPrimary)
                             .findFirst()
                             .map(image -> "http://localhost:8080/api/images/" + image.getPath())
                             .orElse(null);
-
 
                     return new TrekSearchResponse(
                             trek.getId(),

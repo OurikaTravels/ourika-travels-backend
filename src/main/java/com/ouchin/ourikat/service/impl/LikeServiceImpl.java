@@ -35,13 +35,13 @@ public class LikeServiceImpl implements LikeService {
 
         if (existingLike.isPresent()) {
             likeRepository.delete(existingLike.get());
-            return false; // Like removed
+            return false;
         } else {
             Like newLike = new Like();
             newLike.setUser(user);
             newLike.setPost(post);
             likeRepository.save(newLike);
-            return true; // Like added
+            return true;
         }
     }
 

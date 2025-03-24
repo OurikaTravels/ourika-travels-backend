@@ -23,5 +23,6 @@ public interface TrekMapper {
     Trek toEntity(TrekRequest trekRequest);
 
     @Mapping(source = "category.id", target = "categoryId")
+    @Mapping(source = "category.name", target = "categoryName")
     TrekResponse toResponse(Trek trek);
 }

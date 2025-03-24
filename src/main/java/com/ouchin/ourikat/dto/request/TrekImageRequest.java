@@ -1,4 +1,4 @@
-package com.ouchin.ourikat.dto.response;
+package com.ouchin.ourikat.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

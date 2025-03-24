@@ -1,7 +1,7 @@
 package com.ouchin.ourikat.mapper;
 
-import com.ouchin.ourikat.dto.request.TrekImageResponse;
-import com.ouchin.ourikat.dto.response.TrekImageRequest;
+import com.ouchin.ourikat.dto.response.TrekImageResponse;
+import com.ouchin.ourikat.dto.request.TrekImageRequest;
 import com.ouchin.ourikat.entity.TrekImage;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

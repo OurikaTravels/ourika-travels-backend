@@ -22,4 +22,6 @@ public interface PostService {
     void deletePost(Long postId) throws IOException;
 
     List<PostResponseDto> getAll();
+
+    List<Long> getPostIdsLikedByUser(Long userId);
 }

@@ -27,5 +27,6 @@ public class GuideResponseDto {
     private Boolean isValidateGuide;
     private String aboutYou;
     private String profileImage;
+    private Boolean verified;
     //private List<PostResponseDto> posts;
 }

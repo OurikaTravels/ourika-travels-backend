@@ -14,4 +14,7 @@ public class AdminStatisticsResponseDto {
     private long verifiedUsers;
     private long validatedGuides;
     private long nonValidatedGuides;
+    private long reservationsCount;
+    private long reservationRevenue;
+
 }

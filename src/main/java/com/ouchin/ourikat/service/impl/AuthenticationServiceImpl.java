@@ -26,8 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Service
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
@@ -46,43 +46,47 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public LoginResponseDto login(LoginRequestDto request) {
-        try {
+        log.debug("Attempting to log in user with email: {}", request.getEmail());
 
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()
-                    )
-            );
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-            User user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (user.getRole() == Role.GUIDE) {
+            Guide guide = guideRepository.findById(user.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Guide not found"));
 
-            if (user.getRole() == Role.GUIDE) {
-                Guide guide = guideRepository.findById(user.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Guide not found"));
-
-                if (!guide.getIsValidateGuide()) {
-                    throw new AuthenticationFailedException("Guide is not validated. Please contact the administrator.");
-                }
+            if (!guide.getIsValidateGuide()) {
+                throw new GuideNotValidatedException("Guide is not validated. Please contact the administrator.");
             }
-
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String jwt = jwtTokenProvider.generateToken(userDetails);
-
-            return new LoginResponseDto(user.getId(),jwt, user.getRole(), user.getEmail(), user.getLastName());
-        } catch (BadCredentialsException e) {
-            log.error("Invalid login credentials for email: {}", request.getEmail());
-            throw new AuthenticationFailedException("Invalid email or password");
         }
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String jwt = jwtTokenProvider.generateToken(userDetails);
+
+        log.info("User logged in successfully: {}", user.getEmail());
+        return new LoginResponseDto(
+                user.getId(),
+                jwt,
+                user.getRole(),
+                user.getEmail(),
+                user.getLastName()
+        );
     }
 
     @Override
     @Transactional
     public TouristResponseDto registerTourist(TouristRegistrationRequestDto request) {
+        log.debug("Attempting to register tourist with email: {}", request.getEmail());
+
         if (isEmailAlreadyRegistered(request.getEmail())) {
             log.warn("Registration attempt with existing email: {}", request.getEmail());
             throw new EmailAlreadyExistsException("Email already in use");
@@ -107,6 +111,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public GuideResponseDto validateGuide(Long guideId) {
+        log.debug("Validating guide with ID: {}", guideId);
+
         Guide guide = guideRepository.findById(guideId)
                 .orElseThrow(() -> new ResourceNotFoundException("Guide not found"));
 
@@ -121,6 +127,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public GuideResponseDto registerGuide(GuideRegistrationRequestDto request) {
+        log.debug("Attempting to register guide with email: {}", request.getEmail());
+
         if (isEmailAlreadyRegistered(request.getEmail())) {
             log.warn("Registration attempt with existing email: {}", request.getEmail());
             throw new EmailAlreadyExistsException("Email already in use");
@@ -130,10 +138,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         guide.setPassword(passwordEncoder.encode(request.getPassword()));
         guide.setRole(Role.GUIDE);
         guide.setVerified(false);
-        guide.setAboutYou(request.getAboutYou());
 
         Guide savedGuide = guideRepository.save(guide);
-        log.info("Guide registered successfully: {}", savedGuide.getEmail());
 
         String token = UUID.randomUUID().toString();
         generateVerificationToken(savedGuide, token);
@@ -161,6 +167,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public void verifyEmail(String token) {
+        log.debug("Verifying email with token: {}", token);
+
         VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
 
@@ -172,11 +180,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setVerified(true);
         userRepository.save(user);
         verificationTokenRepository.delete(verificationToken);
+
+        log.info("Email verified successfully for user: {}", user.getEmail());
     }
 
     @Override
     @Transactional
     public void generatePasswordResetToken(String email) {
+        log.debug("Generating password reset token for email: {}", email);
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -187,11 +199,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         passwordResetTokenRepository.save(resetToken);
 
         emailService.sendPasswordResetEmail(user.getEmail(), resetToken.getToken());
+
+        log.info("Password reset token generated for user: {}", user.getEmail());
     }
 
     @Override
     @Transactional
     public void resetPassword(String token, String newPassword) {
+        log.debug("Resetting password with token: {}", token);
+
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
 
@@ -204,17 +220,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(user);
 
         passwordResetTokenRepository.delete(resetToken);
-    }
 
+        log.info("Password reset successfully for user: {}", user.getEmail());
+    }
 
     @Override
     @Transactional
     public void updateProfileImage(Long guideId, String fileName) {
+        log.debug("Updating profile image for guide with ID: {}", guideId);
+
         Guide guide = guideRepository.findById(guideId)
                 .orElseThrow(() -> new ResourceNotFoundException("Guide not found"));
 
         guide.setProfileImage(fileName);
         guideRepository.save(guide);
+
         log.info("Profile image updated for guide with ID: {}", guideId);
     }
 }

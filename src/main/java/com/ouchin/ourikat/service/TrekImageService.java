@@ -1,6 +1,6 @@
 package com.ouchin.ourikat.service;
 
-import com.ouchin.ourikat.dto.request.TrekImageResponse;
+import com.ouchin.ourikat.dto.response.TrekImageResponse;
 import org.apache.coyote.BadRequestException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,7 +11,6 @@ public interface TrekImageService {
     List<TrekImageResponse> getImagesByTrekId(Long trekId);
     void deleteImage(Long imageId) throws BadRequestException;
     TrekImageResponse togglePrimaryStatus(Long imageId);
-    void validateTrekImages(Long trekId) throws BadRequestException;
 
 }
 

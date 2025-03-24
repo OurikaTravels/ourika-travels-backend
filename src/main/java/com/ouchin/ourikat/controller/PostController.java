@@ -7,7 +7,6 @@ import com.ouchin.ourikat.service.FileService;
 import com.ouchin.ourikat.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.file.ConfigurationSource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -31,8 +28,8 @@ public class PostController {
     @PostMapping(value = "/guides/{guideId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostResponseDto> createPost(
             @PathVariable Long guideId,
-            @RequestPart("post") @Valid PostRequestDto requestDto, // Expects a JSON string
-            @RequestPart("images") List<MultipartFile> images // Expects a list of files
+            @RequestPart("post") @Valid PostRequestDto requestDto,
+            @RequestPart("images") List<MultipartFile> images
     ) throws IOException {
         PostResponseDto responseDto = postService.createPost(guideId, requestDto, images);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -94,17 +91,17 @@ public class PostController {
     private String determineContentType(String fileName) {
         String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
 
-        switch (fileExtension) {
-            case "jpg":
-            case "jpeg":
-                return MediaType.IMAGE_JPEG_VALUE;
-            case "png":
-                return MediaType.IMAGE_PNG_VALUE;
-            case "gif":
-                return MediaType.IMAGE_GIF_VALUE;
-            default:
-                return MediaType.APPLICATION_OCTET_STREAM_VALUE;
-        }
+        return switch (fileExtension) {
+            case "jpg", "jpeg" -> MediaType.IMAGE_JPEG_VALUE;
+            case "png" -> MediaType.IMAGE_PNG_VALUE;
+            case "gif" -> MediaType.IMAGE_GIF_VALUE;
+            default -> MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        };
+    }
+
+    @GetMapping("/liked-posts/{userId}")
+    public List<Long> getPostIdsLikedByUser(@PathVariable Long userId) {
+        return postService.getPostIdsLikedByUser(userId);
     }
 
 }

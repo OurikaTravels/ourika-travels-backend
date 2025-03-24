@@ -61,4 +61,14 @@ public class WishlistServiceImpl implements WishlistService {
                 .map(wishlistMapper::toResponseDto)
                 .toList();
     }
+
+    @Override
+    public int getWishlistCountByTouristId(Long touristId) {
+        return wishlistRepository.countByTouristId(touristId);
+    }
+
+    @Override
+    public List<Long> getTrekIdsInWishlistByTouristId(Long touristId) {
+        return wishlistRepository.findTrekIdsByTouristId(touristId);
+    }
 }
